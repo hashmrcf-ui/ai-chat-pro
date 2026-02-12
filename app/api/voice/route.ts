@@ -2,7 +2,7 @@ import { Groq } from 'groq-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import * as fs from 'fs';
 import * as path from 'path';
-import { os } from 'process';
+import * as os from 'os';
 
 // Get API key from env or fallback (User needs to set this)
 const groq = new Groq({
