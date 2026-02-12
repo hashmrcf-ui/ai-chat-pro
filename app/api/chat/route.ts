@@ -62,7 +62,8 @@ export async function POST(req: Request) {
                         }
                     },
                     onFinish(event) {
-                        const tokens = event.usage?.completionTokens ?? event.usage?.outputTokens ?? 'N/A';
+                        const usage = event.usage as any;
+                        const tokens = usage?.completionTokens ?? usage?.outputTokens ?? 'N/A';
                         console.log(`[${time}] [${modelName}] Stream finished. Tokens: ${tokens}. Reason: ${event.finishReason}`);
                     },
                     onError(error) {
