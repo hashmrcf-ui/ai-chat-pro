@@ -60,7 +60,7 @@ export default function WebsiteBuilder({ initialPrompt, onClose }: WebsiteBuilde
                 - Use Tailwind CSS and Google Fonts.`
             }
         ],
-        onToolCall: ({ toolCall }) => {
+        onToolCall: ({ toolCall }: { toolCall: any }) => {
             // Visualize Tool Calls as Steps
             const stepId = toolCall.toolCallId;
             let stepLabel = 'Processing...';
@@ -92,7 +92,7 @@ export default function WebsiteBuilder({ initialPrompt, onClose }: WebsiteBuilde
             setCurrentStepId(stepId);
             setShowSteps(true);
         },
-        onFinish: (message) => {
+        onFinish: (message: any) => {
             // Mark last step as complete
             if (currentStepId) {
                 setSteps(prev => prev.map(s => s.id === currentStepId ? { ...s, status: 'completed' } : s));
