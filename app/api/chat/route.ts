@@ -52,7 +52,6 @@ export async function POST(req: Request) {
                 const result = streamText({
                     model: customModel(modelName),
                     messages,
-                    maxSteps: 10, // Enable multi-step agent behavior (Research -> Build)
                     // Dynamic tools loading based on features config
                     tools: (await import('../../../lib/tools')).getTools(),
                     onChunk(event) {
