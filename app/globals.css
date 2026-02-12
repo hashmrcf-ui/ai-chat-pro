@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+:root {
+  /* Light Mode - ChatGPT Style */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f7f7f8;
+  --bg-tertiary: #ececf1;
+  --text-primary: #374151;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+  --accent-color: #10a37f;
+  --accent-hover: #0d8c6f;
+}
+
+.dark {
+  /* Dark Mode - ChatGPT Style */
+  --bg-primary: #212121;
+  --bg-secondary: #2f2f2f;
+  --bg-tertiary: #3f3f3f;
+  --text-primary: #ececec;
+  --text-secondary: #b4b4b4;
+  --border-color: #4e4e4e;
+  --accent-color: #10a37f;
+  --accent-hover: #0d8c6f;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), var(--font-cairo), sans-serif;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ChatGPT-Style Theme */
+.glass-panel {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: none !important;
+  color: var(--text-primary) !important;
+}
+
+.glass-bubble-user {
+  background: var(--bg-secondary) !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--text-primary) !important;
+}
+
+.glass-bubble-ai {
+  background: var(--bg-primary) !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--text-primary) !important;
+}
+
+.glass-button {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  transition: all 0.2s ease !important;
+  color: var(--text-primary) !important;
+}
+
+.glass-button:hover {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--border-color) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.glass-input {
+  background: var(--bg-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  color: var(--text-primary) !important;
+}
+
+.glass-input:focus {
+  background: var(--bg-primary) !important;
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.1) !important;
+  outline: none !important;
+}
+
+.glass-sidebar {
+  background: var(--bg-secondary) !important;
+  border-right: 1px solid var(--border-color) !important;
+  box-shadow: none !important;
+}
+
+.glass-header {
+  background: var(--bg-primary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  box-shadow: none !important;
+}
