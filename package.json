@@ -16,6 +16,7 @@
     "ai": "^6.0.78",
     "clsx": "^2.1.1",
     "framer-motion": "^12.34.0",
+    "groq-sdk": "^0.37.0",
     "lucide-react": "^0.563.0",
     "nanoid": "^5.1.6",
     "next": "16.1.6",
@@ -23,6 +24,7 @@
     "react-dom": "19.2.3",
     "react-markdown": "^10.1.0",
     "react-syntax-highlighter": "^16.1.0",
+    "reactflow": "^11.11.4",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.3.6"
