@@ -1,12 +1,12 @@
 
 import { tool } from 'ai';
 import { z } from 'zod';
-import * as fs from 'fs';
+// import * as fs from 'fs';
 import * as path from 'path';
 import { features } from './features';
 
 // Define the log file path shared with the route (or a separate one)
-const logFile = path.join(process.cwd(), 'server-debug.log');
+// const logFile = path.join(process.cwd(), 'server-debug.log');
 
 export const getTools = () => {
     const tools: any = {};
@@ -18,9 +18,9 @@ export const getTools = () => {
             parameters: z.object({
                 prompt: z.string().describe('The prompt to generate an image from'),
             }),
-            execute: async ({ prompt }) => {
+            execute: async ({ prompt }: { prompt: string }) => {
                 const time = new Date().toISOString();
-                fs.appendFileSync(logFile, `[${time}] Tool: generateImage "${prompt}"\n`);
+                console.log(`[${time}] Tool: generateImage "${prompt}"`);
 
                 try {
                     const { generateKEIImageAndWait } = await import('./kei-generation');
@@ -29,10 +29,10 @@ export const getTools = () => {
                         prompt: prompt
                     });
 
-                    fs.appendFileSync(logFile, `[${time}] Image Success: ${imageUrl}\n`);
+                    console.log(`[${time}] Image Success: ${imageUrl}`);
                     return { success: true, url: imageUrl, prompt };
                 } catch (error: any) {
-                    fs.appendFileSync(logFile, `[${time}] Image Failed: ${error.message}\n`);
+                    console.error(`[${time}] Image Failed: ${error.message}`);
                     return { success: false, error: error.message };
                 }
             },
@@ -47,9 +47,9 @@ export const getTools = () => {
         parameters: z.object({
             query: z.string().describe('The search query for design trends or code examples'),
         }),
-        execute: async ({ query }) => {
+        execute: async ({ query }: { query: string }) => {
             const time = new Date().toISOString();
-            fs.appendFileSync(logFile, `[${time}] Tool: searchWeb "${query}"\n`);
+            console.log(`[${time}] Tool: searchWeb "${query}"`);
 
             // Simulate network delay for realism
             await new Promise(resolve => setTimeout(resolve, 1500));
@@ -82,10 +82,10 @@ export const getTools = () => {
             })).optional().describe('Optional virtual file structure for the explorer'),
             summary: z.string().describe('A brief summary of what you built (e.g., "Added contact form")')
         }),
-        execute: async ({ html, files, summary }) => {
+        execute: async ({ html, files, summary }: { html: string, files?: any[], summary: string }) => {
             // This tool is client-side handled mostly, but server acknowledgment is good.
             const time = new Date().toISOString();
-            fs.appendFileSync(logFile, `[${time}] Tool: generateWebsite "${summary}"\n`);
+            console.log(`[${time}] Tool: generateWebsite "${summary}"`);
             return { success: true, message: "Code generated successfully. UI updated." };
         }
     });
