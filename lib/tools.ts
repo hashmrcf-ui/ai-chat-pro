@@ -67,7 +67,7 @@ export const getTools = () => {
                 context: "Search completed. Use your internal knowledge base to apply these modern trends."
             };
         }
-    });
+    } as any);
 
     // 3. Website Generator Tool
     // This allows the LLM to explicitly "deliver" the final code in a structured way
@@ -88,7 +88,7 @@ export const getTools = () => {
             console.log(`[${time}] Tool: generateWebsite "${summary}"`);
             return { success: true, message: "Code generated successfully. UI updated." };
         }
-    });
+    } as any);
 
     return tools;
 };
