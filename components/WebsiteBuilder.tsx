@@ -191,7 +191,7 @@ export default function WebsiteBuilder({ initialPrompt, onClose }: WebsiteBuilde
 
                     {/* Chat Messages */}
                     <div className="space-y-4">
-                        {messages.filter(m => m.role !== 'system').map((m) => {
+                        {messages.filter((m: any) => m.role !== 'system').map((m: any) => {
                             // Don't show tool invocations as raw text
                             if ((m as any).toolInvocations) return null;
 
