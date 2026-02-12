@@ -117,7 +117,7 @@ export default function WebsiteBuilder({ initialPrompt, onClose }: WebsiteBuilde
                 });
             }
         }
-    });
+    } as any);
 
     // Extract properties from chatHelpers
     const messages = chatHelpers.messages;
