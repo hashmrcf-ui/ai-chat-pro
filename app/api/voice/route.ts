@@ -10,7 +10,7 @@ const groq = new Groq({
 });
 
 export async function POST(req: NextRequest) {
-    const logFile = path.join(process.cwd(), 'server-debug.log');
+    const logFile = path.join(process.cwd(), 'server-debug.log'); // Keep for local, but console log for Vercel
     const time = new Date().toISOString();
 
     try {
@@ -25,11 +25,12 @@ export async function POST(req: NextRequest) {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        // Save temporarily (Groq SDK expects a file path or stream, but file path is safer for temp storage)
-        const tempFilePath = path.join(process.cwd(), `temp_${Date.now()}.webm`);
+        // Save temporarily (Use /tmp for Vercel/Linux, or process.cwd() for local fallback if /tmp fails check? simplest is os.tmpdir())
+        const tempDir = os.tmpdir();
+        const tempFilePath = path.join(tempDir, `temp_${Date.now()}.webm`);
         fs.writeFileSync(tempFilePath, buffer);
-        
-        fs.appendFileSync(logFile, `[${time}] Voice: Received audio file size: ${buffer.length}\n`);
+
+        console.log(`[${time}] Voice: Received audio file size: ${buffer.length}`);
 
         const transcription = await groq.audio.transcriptions.create({
             file: fs.createReadStream(tempFilePath),
@@ -40,14 +41,18 @@ export async function POST(req: NextRequest) {
         });
 
         // Cleanup
-        fs.unlinkSync(tempFilePath);
+        try {
+            fs.unlinkSync(tempFilePath);
+        } catch (e) {
+            console.error('Failed to delete temp file:', e);
+        }
 
-        fs.appendFileSync(logFile, `[${time}] Voice: Transcription success: "${transcription.text}"\n`);
+        console.log(`[${time}] Voice: Transcription success: "${transcription.text}"`);
 
         return NextResponse.json({ text: transcription.text });
 
     } catch (error: any) {
-        fs.appendFileSync(logFile, `[${time}] Voice ERROR: ${error.message}\n`);
+        console.error(`[${time}] Voice ERROR: ${error.message}`);
         console.error('Groq Whisper Error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }

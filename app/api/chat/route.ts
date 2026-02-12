@@ -29,14 +29,13 @@ const customModel = (modelName: string) => {
 };
 
 export async function POST(req: Request) {
-    const logFile = path.join(process.cwd(), 'server-debug.log');
     const time = new Date().toISOString();
 
     try {
-        fs.appendFileSync(logFile, `\n[${time}] POST /api/chat called (Fallback Logic)\n`);
+        console.log(`[${time}] POST /api/chat called (Fallback Logic)`);
         const { messages, model } = await req.json();
         const lastMessage = messages[messages.length - 1]?.content || 'unknown';
-        fs.appendFileSync(logFile, `[${time}] Received ${messages.length} messages. Model: ${model}. Last: ${lastMessage}\n`);
+        console.log(`[${time}] Received ${messages.length} messages. Model: ${model}. Last: ${lastMessage}`);
 
         // Use requested model or default to the first one
         const targetModel = model || features.ai.models[0];
@@ -48,7 +47,7 @@ export async function POST(req: Request) {
 
         for (const modelName of modelQueue) {
             try {
-                fs.appendFileSync(logFile, `[${time}] Attempting model: ${modelName}\n`);
+                console.log(`[${time}] Attempting model: ${modelName}`);
 
                 const result = streamText({
                     model: customModel(modelName),
@@ -60,25 +59,25 @@ export async function POST(req: Request) {
                         if (event.chunk.type === 'text-delta') {
                             const text = event.chunk.text || '';
                             const preview = text.replace(/\n/g, '\\n').substring(0, 50);
-                            fs.appendFileSync(logFile, `[${time}] [${modelName}] Chunk: "${preview}"\n`);
+                            // console.log(`[${time}] [${modelName}] Chunk: "${preview}"`); // Too verbose
                         }
                     },
                     onFinish(event) {
                         const tokens = event.usage?.completionTokens ?? event.usage?.outputTokens ?? 'N/A';
-                        fs.appendFileSync(logFile, `[${time}] [${modelName}] Stream finished. Tokens: ${tokens}. Reason: ${event.finishReason}\n`);
+                        console.log(`[${time}] [${modelName}] Stream finished. Tokens: ${tokens}. Reason: ${event.finishReason}`);
                     },
                     onError(error) {
                         const errorObj = error instanceof Error ? { message: error.message, stack: error.stack, name: error.name } : error;
-                        fs.appendFileSync(logFile, `[${time}] [${modelName}] Stream ERROR: ${JSON.stringify(errorObj, null, 2)}\n`);
+                        console.error(`[${time}] [${modelName}] Stream ERROR: ${JSON.stringify(errorObj, null, 2)}`);
                     },
                 });
 
-                fs.appendFileSync(logFile, `[${time}] Model ${modelName} initialized successfully. Returning stream.\n`);
+                console.log(`[${time}] Model ${modelName} initialized successfully. Returning stream.`);
                 return result.toTextStreamResponse();
 
             } catch (error) {
                 const errorMsg = error instanceof Error ? error.message : String(error);
-                fs.appendFileSync(logFile, `[${time}] Model ${modelName} FAILED to initialize: ${errorMsg}\n`);
+                console.error(`[${time}] Model ${modelName} FAILED to initialize: ${errorMsg}`);
                 lastError = error;
                 // Continue to next model in loop
                 continue;
@@ -89,7 +88,7 @@ export async function POST(req: Request) {
         throw lastError || new Error("All configured models failed to initialize.");
 
     } catch (error) {
-        fs.appendFileSync(logFile, `[${time}] FATAL ERROR (All models failed): ${error}\n`);
+        console.error(`[${time}] FATAL ERROR (All models failed): ${error}`);
         return new Response(JSON.stringify({ error: 'System Overload: All AI models are currently unavailable. Please try again later.' }), { status: 503 });
     }
 }
