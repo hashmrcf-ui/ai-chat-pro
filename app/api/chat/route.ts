@@ -8,7 +8,7 @@ import { features, getModel } from '../../../lib/features';
 
 // Allow streaming responses up to 30 seconds
 // Allow streaming responses up to 5 minutes for complex reasoning/coding tasks
-export const maxDuration = 3000;
+export const maxDuration = 60;
 
 const openrouter = createOpenRouter({
     apiKey: process.env.OPENROUTER_API_KEY,
