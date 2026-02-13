@@ -2,6 +2,7 @@ import { generateText } from 'ai';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { createOpenAI } from '@ai-sdk/openai';
 import { features } from '@/lib/features';
+import { getSystemPrompt } from '@/lib/config';
 
 export const maxDuration = 60;
 
@@ -26,8 +27,12 @@ export async function POST(req: Request) {
         const { messages, model } = await req.json();
         const targetModel = model || features.ai.models[0];
 
+        // Fetch dynamic system prompt
+        const systemPrompt = await getSystemPrompt();
+
         const result = await generateText({
             model: customModel(targetModel),
+            system: systemPrompt, // Use system prompt parameter
             messages,
         });
 

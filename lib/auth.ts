@@ -1,164 +1,96 @@
-// Simple Authentication System for Local Storage
-// Note: This is for development/personal use only. For production, use NextAuth.js or similar.
+import { supabase } from './supabase';
 
-export interface User {
+export interface UserProfile {
     id: string;
-    name: string;
     email: string;
-    passwordHash: string;
-    createdAt: number;
-    isAdmin: boolean;
-    lastLogin?: number;
+    full_name: string;
+    avatar_url: string;
+    is_admin: boolean;
+    created_at: string;
 }
 
 export interface AuthSession {
-    userId: string;
-    email: string;
-    name: string;
-    loginTime: number;
+    user: any;
+    access_token: string;
 }
 
-// Simple hash function (NOT cryptographically secure - for demo only)
-// In production, use bcrypt or similar on the server side
-async function simpleHash(password: string): Promise<string> {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password + 'salt_ai_chat_pro');
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+// Create a new user (Signup)
+export async function createUser(name: string, email: string, password: string): Promise<{ success: boolean; error?: string }> {
+    const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            data: {
+                full_name: name,
+            }
+        }
+    });
 
-// Get all users from localStorage
-function getUsers(): User[] {
-    if (typeof window === 'undefined') return [];
-    const usersJson = localStorage.getItem('users');
-    return usersJson ? JSON.parse(usersJson) : [];
-}
-
-// Save users to localStorage
-function saveUsers(users: User[]): void {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('users', JSON.stringify(users));
-}
-
-// Create a new user
-export async function createUser(name: string, email: string, password: string): Promise<{ success: boolean; error?: string; user?: User }> {
-    // Validation
-    if (!name || !email || !password) {
-        return { success: false, error: 'All fields are required' };
-    }
-
-    if (password.length < 6) {
-        return { success: false, error: 'Password must be at least 6 characters' };
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return { success: false, error: 'Invalid email format' };
-    }
-
-    // Check if user already exists
-    const users = getUsers();
-    if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
-        return { success: false, error: 'Email already registered' };
-    }
-
-    // Create new user
-    const passwordHash = await simpleHash(password);
-    // Admin emails list
-    const adminEmails = ['admin@aichatpro.com', 'youremail@example.com'];
-    const isAdmin = adminEmails.includes(email.toLowerCase());
-    const newUser: User = {
-        id: Date.now().toString(),
-        name,
-        email: email.toLowerCase(),
-        passwordHash,
-        createdAt: Date.now(),
-        isAdmin,
-        lastLogin: Date.now()
-    };
-
-    users.push(newUser);
-    saveUsers(users);
-
-    return { success: true, user: newUser };
+    if (error) return { success: false, error: error.message };
+    return { success: true };
 }
 
 // Login user
-export async function loginUser(email: string, password: string): Promise<{ success: boolean; error?: string; session?: AuthSession }> {
-    if (!email || !password) {
-        return { success: false, error: 'Email and password are required' };
-    }
+export async function loginUser(email: string, password: string): Promise<{ success: boolean; error?: string }> {
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+    });
 
-    const users = getUsers();
-    const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-    if (!user) {
-        return { success: false, error: 'Invalid email or password' };
-    }
-
-    const passwordHash = await simpleHash(password);
-    if (passwordHash !== user.passwordHash) {
-        return { success: false, error: 'Invalid email or password' };
-    }
-
-    // Update last login
-    user.lastLogin = Date.now();
-    const allUsers = getUsers();
-    const userIndex = allUsers.findIndex(u => u.id === user.id);
-    if (userIndex >= 0) {
-        allUsers[userIndex] = user;
-        saveUsers(allUsers);
-    }
-
-    // Create session
-    const session: AuthSession = {
-        userId: user.id,
-        email: user.email,
-        name: user.name,
-        loginTime: Date.now()
-    };
-
-    localStorage.setItem('authSession', JSON.stringify(session));
-
-    return { success: true, session };
-}
-
-// Get current session
-export function getCurrentSession(): AuthSession | null {
-    if (typeof window === 'undefined') return null;
-    const sessionJson = localStorage.getItem('authSession');
-    return sessionJson ? JSON.parse(sessionJson) : null;
-}
-
-// Check if user is logged in
-export function isLoggedIn(): boolean {
-    return getCurrentSession() !== null;
+    if (error) return { success: false, error: error.message };
+    return { success: true };
 }
 
 // Logout user
-export function logoutUser(): void {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem('authSession');
+export async function logoutUser(): Promise<void> {
+    await supabase.auth.signOut();
 }
 
-// Get current user details
-export function getCurrentUser(): User | null {
-    const session = getCurrentSession();
-    if (!session) return null;
+// Get current user profile from public.users table
+export async function getCurrentUser(): Promise<UserProfile | null> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
 
-    const users = getUsers();
-    return users.find(u => u.id === session.userId) || null;
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+    if (error) {
+        console.error('Error fetching user profile:', error);
+        return null;
+    }
+
+    return data as UserProfile;
+}
+
+// Check if user is logged in
+export async function isLoggedIn(): Promise<boolean> {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user !== null;
 }
 
 // Check if current user is admin
-export function isAdmin(): boolean {
-    const user = getCurrentUser();
-    return user?.isAdmin || false;
+export async function checkIsAdmin(): Promise<boolean> {
+    const user = await getCurrentUser();
+    return user?.is_admin || false;
 }
 
 // Get all users (admin only)
-export function getAllUsers(): User[] {
-    if (!isAdmin()) return [];
-    return getUsers();
+export async function getAllUsers(): Promise<UserProfile[]> {
+    const isAdmin = await checkIsAdmin();
+    if (!isAdmin) return [];
+
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching all users:', error);
+        return [];
+    }
+
+    return data as UserProfile[];
 }

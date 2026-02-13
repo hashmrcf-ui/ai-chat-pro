@@ -42,7 +42,6 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#212121] transition-colors relative">
-            <VibeLogoShowcase />
             {/* Theme Toggle */}
             <button
                 onClick={toggleTheme}
