@@ -3,16 +3,14 @@ export const features = {
         // The primary model to use. If this fails, the system will try the others in order.
         models: [
             // === TOP 3 PAID (Verified Working) ===
-            'anthropic/claude-sonnet-4.5',             // #1 Latest Claude (Verified)
-            'openai/gpt-4o',                           // #2 GPT-4 Omni (Verified)
-            'google/gemini-2.0-pro-exp-02-05',         // #3 Gemini Pro (Verified)
+            'anthropic/claude-3.5-sonnet',             // #1 Latest Claude 3.5 Sonnet
+            'openai/gpt-4o',                           // #2 GPT-4 Omni
+            'google/gemini-pro-1.5',                   // #3 Gemini 1.5 Pro
 
             // === FREE MODELS (Expanded List) ===
-            'deepseek/deepseek-r1:free',               // DeepSeek R1 (Free)
-            'z-ai/glm-4.5-air:free',                   // Z.AI GLM 4.5 Air (Free)
-            'xiaomi/mimo-v2-flash:free',               // Xiaomi MiMo V2 Flash (Free)
-            'google/gemini-2.0-flash-001:free',        // Gemini Flash (Free)
-            'meta-llama/llama-3.3-70b-instruct:free',  // Llama 3.3 (Free)
+            'google/gemini-2.0-flash-001:free',        // #1 Gemini 2.0 Flash (Fastest Free)
+            'meta-llama/llama-3.1-405b-instruct:free', // #2 Llama 3.1 405B (Smartest Free)
+            'qwen/qwen-2.5-72b-instruct:free',         // #3 Qwen 2.5 72B (Best Coding Free)
         ],
         // If true, shows detailed error messages to the user.
         debugMode: true,
