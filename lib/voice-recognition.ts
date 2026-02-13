@@ -8,7 +8,7 @@ export interface VoiceRecognitionConfig {
 }
 
 export class VoiceRecognition {
-    private recognition: SpeechRecognition | null = null;
+    private recognition: any = null;
     private isListening: boolean = false;
 
     constructor(config: VoiceRecognitionConfig = {}) {
@@ -30,9 +30,9 @@ export class VoiceRecognition {
 
         if (this.isListening) return;
 
-        this.recognition.onresult = (event: SpeechRecognitionEvent) => {
-            const text = Array.from(event.results)
-                .map(result => result[0].transcript)
+        this.recognition.onresult = (event: any) => {
+            const text = Array.from(event.results as any[])
+                .map((result: any) => result[0].transcript)
                 .join('');
             onResult(text);
         };
@@ -67,22 +67,5 @@ declare global {
     interface Window {
         SpeechRecognition: any;
         webkitSpeechRecognition: any;
-    }
-    interface SpeechRecognitionEvent {
-        results: SpeechRecognitionResultList;
-    }
-    interface SpeechRecognitionResultList {
-        [index: number]: SpeechRecognitionResult;
-        length: number;
-        [Symbol.iterator](): IterableIterator<SpeechRecognitionResult>;
-    }
-    interface SpeechRecognitionResult {
-        [index: number]: SpeechRecognitionAlternative;
-        length: number;
-        isFinal: boolean;
-    }
-    interface SpeechRecognitionAlternative {
-        transcript: string;
-        confidence: number;
     }
 }
