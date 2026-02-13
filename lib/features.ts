@@ -7,10 +7,17 @@ export const features = {
             'openai/gpt-4o',                           // #2 GPT-4 Omni
             'google/gemini-pro-1.5',                   // #3 Gemini 1.5 Pro
 
-            // === FREE MODELS (Expanded List) ===
-            'google/gemini-2.0-flash-001:free',        // #1 Gemini 2.0 Flash (Fastest Free)
-            'meta-llama/llama-3.1-405b-instruct:free', // #2 Llama 3.1 405B (Smartest Free)
-            'qwen/qwen-2.5-72b-instruct:free',         // #3 Qwen 2.5 72B (Best Coding Free)
+            // === FREE MODELS (OpenRouter - Verified Working) ===
+            'meta-llama/llama-3.3-70b-instruct:free',          // #1 Llama 3.3 (Most Reliable Free Model)
+            'google/gemma-3-27b-it:free',                      // #2 Gemma 3 (Latest & Fast)
+
+            // === FREE MODELS (Backup / Busy) ===
+            // 'mistralai/mistral-small-3.1-24b-instruct:free',   // Removed due to instability
+            // 'deepseek/deepseek-r1:free',                       // Removed due to instability
+
+            // === LOCAL MODELS (Ollama) ===
+            // 'llama3.2',
+            // 'deepseek-r1',
         ],
         // If true, shows detailed error messages to the user.
         debugMode: true,

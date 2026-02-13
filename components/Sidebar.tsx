@@ -10,6 +10,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ChatSession, Project, storage } from '@/lib/storage';
+import { Logo } from '@/components/Logo';
 
 interface SidebarProps {
     isCollapsed: boolean;
@@ -114,9 +115,8 @@ export function Sidebar({
             {/* 1. Header */}
             <div className="h-14 flex items-center justify-between px-3 border-b border-gray-100 dark:border-zinc-800/50">
                 {!isCollapsed && (
-                    <div className="flex items-center gap-2 font-bold text-gray-800 dark:text-gray-100 opacity-100 transition-opacity">
-                        <div className="w-6 h-6 rounded bg-gradient-to-br from-violet-600 to-indigo-600 text-white flex items-center justify-center text-xs">AI</div>
-                        <span>Vibe AI</span>
+                    <div className="flex items-center transition-opacity">
+                        <Logo iconSize="w-8 h-8" textSize="text-lg font-bold" showText={true} />
                     </div>
                 )}
                 <button

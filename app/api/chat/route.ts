@@ -12,6 +12,10 @@ export const maxDuration = 60;
 
 const openrouter = createOpenRouter({
     apiKey: process.env.OPENROUTER_API_KEY,
+    headers: {
+        'HTTP-Referer': 'http://localhost:3000',
+        'X-Title': 'AI Chat Pro',
+    }
 });
 
 const ollama = createOpenAI({
@@ -30,9 +34,15 @@ const customModel = (modelName: string) => {
 
 export async function POST(req: Request) {
     const time = new Date().toISOString();
+    const logFile = path.join(process.cwd(), 'server-debug.log');
+    const log = (msg: string) => {
+        // fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${msg}\n`); // Disabled for production
+        console.log(msg);
+    };
 
     try {
-        console.log(`[${time}] POST /api/chat called (Fallback Logic)`);
+        log(`POST /api/chat called`);
+        log(`API Key Present: ${!!process.env.OPENROUTER_API_KEY}`);
         const { messages, model } = await req.json();
         const lastMessage = messages[messages.length - 1]?.content || 'unknown';
         console.log(`[${time}] Received ${messages.length} messages. Model: ${model}. Last: ${lastMessage}`);
@@ -47,7 +57,7 @@ export async function POST(req: Request) {
 
         for (const modelName of modelQueue) {
             try {
-                console.log(`[${time}] Attempting model: ${modelName}`);
+                log(`Attempting model: ${modelName}`);
 
                 const result = streamText({
                     model: customModel(modelName),
@@ -58,7 +68,7 @@ export async function POST(req: Request) {
                         if (event.chunk.type === 'text-delta') {
                             const text = event.chunk.text || '';
                             const preview = text.replace(/\n/g, '\\n').substring(0, 50);
-                            // console.log(`[${time}] [${modelName}] Chunk: "${preview}"`); // Too verbose
+                            log(`[${modelName}] Chunk: "${preview}"`);
                         }
                     },
                     onFinish(event) {
@@ -68,7 +78,7 @@ export async function POST(req: Request) {
                     },
                     onError(error) {
                         const errorObj = error instanceof Error ? { message: error.message, stack: error.stack, name: error.name } : error;
-                        console.error(`[${time}] [${modelName}] Stream ERROR: ${JSON.stringify(errorObj, null, 2)}`);
+                        log(`[${modelName}] Stream ERROR: ${JSON.stringify(errorObj)}`);
                     },
                 });
 
@@ -77,7 +87,7 @@ export async function POST(req: Request) {
 
             } catch (error) {
                 const errorMsg = error instanceof Error ? error.message : String(error);
-                console.error(`[${time}] Model ${modelName} FAILED to initialize: ${errorMsg}`);
+                log(`Model ${modelName} FAILED: ${errorMsg}`);
                 lastError = error;
                 // Continue to next model in loop
                 continue;

@@ -4,6 +4,7 @@ import { useState, FormEvent, ChangeEvent } from 'react';
 import { Send, Sparkles } from 'lucide-react';
 import SidebarLayout from '@/components/SidebarLayout';
 import { features } from '@/lib/features';
+import { Logo } from '@/components/Logo';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -50,8 +51,7 @@ export default function ChatPage() {
         {/* Header */}
         <header className="h-16 border-b border-[#27272a] bg-[#18181b] flex items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-indigo-400" />
-            <h1 className="text-lg font-semibold">AI Chat Pro</h1>
+            <Logo iconSize="w-8 h-8" textSize="text-lg text-white" showText={true} />
           </div>
           <select
             value={selectedModel}
@@ -70,11 +70,11 @@ export default function ChatPage() {
         <div className="flex-1 overflow-y-auto px-6 py-8">
           {messages.length === 0 ? (
             <div className="h-full flex items-center justify-center">
-              <div className="text-center max-w-md">
-                <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="w-8 h-8" />
+              <div className="text-center max-w-md flex flex-col items-center">
+                <div className="mb-6">
+                  <Logo iconSize="w-20 h-20" showText={false} />
                 </div>
-                <h2 className="text-2xl font-bold mb-2">مرحباً بك في AI Chat Pro</h2>
+                <h2 className="text-2xl font-bold mb-2">مرحباً بك في Vibe AI</h2>
                 <p className="text-gray-400">كيف يمكنني مساعدتك اليوم؟</p>
               </div>
             </div>
