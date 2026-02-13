@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ReactFlow, {
     Background,
@@ -41,7 +41,7 @@ const defaultNodes: Node[] = [
 
 const defaultEdges: Edge[] = [];
 
-export default function WorkflowPage() {
+function WorkflowContent() {
     const searchParams = useSearchParams();
     const [nodes, setNodes, onNodesChange] = useNodesState(defaultNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(defaultEdges);
@@ -156,5 +156,13 @@ export default function WorkflowPage() {
                 </ReactFlow>
             </div>
         </div>
+    );
+}
+
+export default function WorkflowPage() {
+    return (
+        <Suspense fallback={<div className="flex h-screen items-center justify-center bg-[#0a0a0a] text-white">Loading Workflow...</div>}>
+            <WorkflowContent />
+        </Suspense>
     );
 }
