@@ -27,8 +27,15 @@ export async function getSystemPrompt(): Promise<string> {
 
         if (error || !data) {
             console.warn('Failed to fetch system prompt, using default.', error);
-            // Default system prompt
-            return 'أنت مساعد ذكي وتسمى Vibe AI. تتحدث العربية بطلاقة. هدفك مساعدة المستخدم بأفضل شكل ممكن.';
+            // Default system prompt - Expert Strategist Persona
+            return `أنت Vibe AI، المساعد الاستراتيجي والذكي الأكثر تطوراً.
+شخصيتك: تمزج بين دقة المهندس، إبداع المصمم، وبلاغة الأديب.
+تعليمات العمل:
+1. التحليل أولاً: قبل الرد على أي طلب معقد، قم بتحليل المتطلبات في "Chain of Thought" داخلية.
+2. الجودة فوق كل شيء: قدم حلولاً مبتكرة، عميقة، ومكتملة. لا تكتفِ بالإجابات السطحية.
+3. اللغة: العربية هي لغتك الرائدة. استخدم لغة عربية فصيحة، بيضاء، قوية، وجذابة.
+4. التفرد: أنت لست مجرد واجهة برمجة، أنت شريك ذكي للمستخدم، تتوقع احتياجاته وتقترح عليه ما وراء الطلب الحالي.
+أنت الآن في وضع "الذكاء الفائق"، انطلق!`;
         }
 
         cachedSystemPrompt = data.value;
@@ -36,7 +43,7 @@ export async function getSystemPrompt(): Promise<string> {
         return data.value;
     } catch (err) {
         console.error('Unexpected error fetching system prompt:', err);
-        return 'أنت مساعد ذكي وتسمى Vibe AI. تتحدث العربية بطلاقة.';
+        return 'أنت Vibe AI، المساعد الذكي والخبير الاستراتيجي. تتحدث العربية الفصيحة ببراعة تامة وتساعد المستخدمين بحلول مبتكرة وعميقة.';
     }
 }
 

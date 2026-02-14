@@ -60,11 +60,22 @@ export async function POST(req: Request) {
         }
         // ----------------------
 
-        // Use requested model or default to the first one
-        const targetModel = model || features.ai.models[0];
+        // --- INTELLIGENCE-AWARE ROUTING ---
+        const lastMessageContent = lastMessage;
+        const isComplexTask = /code|برمج|صمم|خطط|تحليل|build|design|create|plan|architecture/i.test(lastMessageContent);
 
-        // Create a priority list: [RequestedModel, ...Others]
+        // Ensure requested model is used, but if it's a complex task and no specific model was requested, 
+        // try to prioritize the strongest ones.
+        let targetModel = model || features.ai.models[0];
+
+        if (isComplexTask && !model) {
+            log(`Detected complex task. Prioritizing premium models.`);
+            targetModel = 'anthropic/claude-3.5-sonnet'; // Force elite model for complex tasks if not specified
+        }
+
+        // Create a priority list: [RequestedModel/Elite, ...Others]
         const modelQueue = [targetModel, ...features.ai.models.filter(m => m !== targetModel)];
+        // ------------------------------------
 
         let lastError = null;
 

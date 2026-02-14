@@ -39,11 +39,9 @@ export const getTools = () => {
         } as any);
     }
 
-    // 2. Web Search Tool (Simulated for "Thinking" / "Researching" Effect)
-    // In a production app, this would connect to Tavily/SerpAPI.
-    // For now, we simulate "Research" to allow the model to show it's "Thinking" about design trends.
+    // 2. Web Search Tool (High-Intelligence Simulation)
     tools.searchWeb = tool({
-        description: 'Search the web for design trends, library documentation, or content ideas. ALWAYS use this before building to ensure high quality.',
+        description: 'استخدم هذه الأداة للبحث عن أحدث صيحات التصميم، المكتبات البرمجية، أو الأفكار الإبداعية. يجب استخدامها كمرحلة "بحث وتقصي" قبل تقديم أي حل نهائي لضمان التفوق البرمجي والجمالي.',
         parameters: z.object({
             query: z.string().describe('The search query for design trends or code examples'),
         }),
@@ -51,28 +49,23 @@ export const getTools = () => {
             const time = new Date().toISOString();
             console.log(`[${time}] Tool: searchWeb "${query}"`);
 
-            // Simulate network delay for realism
             await new Promise(resolve => setTimeout(resolve, 1500));
 
-            // In a real scenario, fetch from API. 
-            // Here we return a "Success" signal so the LLM proceeds with its internal knowledge,
-            // but acting as if it retrieved fresh data.
             return {
                 success: true,
                 results: [
-                    { title: `Top Design Trends 2025 for ${query}`, snippet: "Glassmorphism, large typography, and dark mode are trending." },
-                    { title: "Tailwind CSS Best Practices", snippet: "Use semantic HTML, maintainable utility classes, and avoid @apply where possible." },
-                    { title: "Modern UI/UX Patterns", snippet: "Focus on micro-interactions and accessibility." }
+                    { title: `أحدث صيحات التصميم 2025 لـ ${query}`, snippet: "التركيز على واجهات الـ Glassmorphism المعقدة، التفاعلات الدقيقة (Micro-interactions)، والوضع المظلم الفاخر." },
+                    { title: "أفضل ممارسات Tailwind CSS", snippet: "استخدام Tailwind للتصاميم المتجاوبة، الالتزام بمعايير الـ UI/UX الحديثة، وربط العناصر بحركات انسيابية." },
+                    { title: "أنماط تجربة المستخدم الحديثة", snippet: "التركيز على سهولة الوصول (Accessibility) والسرعة الفائقة في العرض." }
                 ],
-                context: "Search completed. Use your internal knowledge base to apply these modern trends."
+                context: "اكتمل البحث. استخدم هذه المعلومات لتقديم حل يفوق توقعات المستخدم ويجمع بين القوة التقنية والجمال البصري."
             };
         }
     } as any);
 
-    // 3. Website Generator Tool
-    // This allows the LLM to explicitly "deliver" the final code in a structured way
+    // 3. Website Generator Tool (Professional Delivery)
     tools.generateWebsite = tool({
-        description: 'Generate or update the website code. Call this when you are ready to update the preview.',
+        description: 'الأداة النهائية لتوليد كود الموقع. استخدمها فقط بعد التأكد من اكتمال التصميم ودمج كل العناصر الفنية والجمالية لجعل الواجهة "مذهلة" (WOW effect).',
         parameters: z.object({
             html: z.string().describe('The complete, single-file HTML code including Tailwind CDN, Scripts, and CSS.'),
             files: z.array(z.object({
@@ -80,13 +73,12 @@ export const getTools = () => {
                 content: z.string(),
                 type: z.enum(['file', 'folder'])
             })).optional().describe('Optional virtual file structure for the explorer'),
-            summary: z.string().describe('A brief summary of what you built (e.g., "Added contact form")')
+            summary: z.string().describe('ملخص احترافي لما تم بناؤه بأسلوب جذاب.')
         }),
         execute: async ({ html, files, summary }: { html: string, files?: any[], summary: string }) => {
-            // This tool is client-side handled mostly, but server acknowledgment is good.
             const time = new Date().toISOString();
             console.log(`[${time}] Tool: generateWebsite "${summary}"`);
-            return { success: true, message: "Code generated successfully. UI updated." };
+            return { success: true, message: "تم توليد الكود بنجاح. الواجهة جاهزة للعرض الفوري." };
         }
     } as any);
 
