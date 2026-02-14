@@ -84,21 +84,46 @@ function ChatContent() {
         await saveMessage(activeChatId, 'user', userContent);
       }
 
-      const response = await fetch('/api/chat/simple', {
+      // Switch to /api/chat (streaming) for full tool support (like memory)
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [...messages, newMessage],
           model: selectedModel,
+          userId: user.id, // Explicitly pass userId for memory tracking
         }),
       });
 
-      const data = await response.json();
-      const assistantContent = data.content || 'عذراً، حدث خطأ في النظام.';
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'فشل الاتصال بالخادم');
+      }
 
-      setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
+      // Handle Streaming response
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('تعذر بدء تدفق البيانات');
 
-      if (activeChatId && !data.error) {
+      let assistantContent = '';
+      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        assistantContent += chunk;
+
+        // Update the last message (assistant) with the accumulated content
+        setMessages(prev => {
+          const newMsgs = [...prev];
+          newMsgs[newMsgs.length - 1] = { role: 'assistant', content: assistantContent };
+          return newMsgs;
+        });
+      }
+
+      if (activeChatId) {
         await saveMessage(activeChatId, 'assistant', assistantContent);
       }
     } catch (error) {

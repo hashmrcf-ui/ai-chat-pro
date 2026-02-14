@@ -51,10 +51,12 @@ export async function POST(req: Request) {
         }
 
         // 1. GET CONTEXT (System Prompt & Memories)
+        const { createClient } = await import('@/lib/supabase-server');
+        const supabaseClient = await createClient();
         let basePrompt = await getSystemPrompt();
 
         // Fetch long-term memories if user is logged in
-        const memories = await getTopMemories(userId);
+        const memories = await getTopMemories(userId, 15, supabaseClient);
         if (memories.length > 0) {
             const memoryContext = `\n[ذاكرة المستخدم طويلة الأمد]:\n${memories.map((m, i) => `${i + 1}. ${m}`).join('\n')}\nاستخدم هذه الحقائق لتخصيص ردودك وجعلها أكثر ذكاءً وتناسباً مع المستخدم.`;
             basePrompt += memoryContext;

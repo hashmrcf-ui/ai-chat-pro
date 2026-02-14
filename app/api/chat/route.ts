@@ -80,12 +80,14 @@ export async function POST(req: Request) {
         // 1. GET CONTEXT (System Prompt & Memories)
         const { getSystemPrompt } = await import('../../../lib/config');
         const { getTopMemories } = await import('../../../lib/memories');
+        const { createClient } = await import('../../../lib/supabase-server');
 
+        const supabaseClient = await createClient();
         let basePrompt = await getSystemPrompt();
 
         // Fetch long-term memories if user is logged in
         if (userId) {
-            const memories = await getTopMemories(userId);
+            const memories = await getTopMemories(userId, 15, supabaseClient);
             if (memories.length > 0) {
                 const memoryContext = `\n[ذاكرة المستخدم طويلة الأمد]:\n${memories.map((m, i) => `${i + 1}. ${m}`).join('\n')}\nاستخدم هذه الحقائق لتخصيص ردودك وجعلها أكثر ذكاءً وتناسباً مع المستخدم.`;
                 basePrompt += memoryContext;
@@ -96,14 +98,16 @@ export async function POST(req: Request) {
 
         for (const modelName of modelQueue) {
             try {
-                log(`Attempting model: ${modelName}`);
+                const { createClient } = await import('../../../lib/supabase-server');
+                const supabaseClient = await createClient();
 
                 const result = streamText({
                     model: customModel(modelName),
                     system: basePrompt,
                     messages,
+                    maxSteps: 5, // Crucial for tools to work correctly
                     // Dynamic tools loading based on features config
-                    tools: (await import('../../../lib/tools')).getTools(),
+                    tools: (await import('../../../lib/tools')).getTools(userId),
                     onChunk(event) {
                         if (event.chunk.type === 'text-delta') {
                             const text = event.chunk.text || '';
