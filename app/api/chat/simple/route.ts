@@ -46,10 +46,11 @@ export async function POST(req: Request) {
                 await logSecurityEvent(userId, lastMessage.content, securityResult);
 
                 if (securityResult.severity === 'critical' || securityResult.severity === 'high') {
-                    return Response.json({
-                        content: 'عذراً، محتوى رسالتك ينتهك سياسة الاستخدام والأمان.',
-                        error: true,
-                    }, { status: 400 });
+                    console.log('Security Alert Logged: but allowing request to proceed as per admin policy.');
+                    // return Response.json({
+                    //     content: 'عذراً، محتوى رسالتك ينتهك سياسة الاستخدام والأمان.',
+                    //     error: true,
+                    // }, { status: 400 });
                 }
             }
         }
