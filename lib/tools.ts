@@ -154,5 +154,33 @@ export const getTools = (userId?: string) => {
         }
     } as any);
 
+    // 5. Shopping Tool (Geospatial Order Routing)
+    tools.processOrder = tool({
+        description: 'معالجة طلب شراء منتج معين للعميل وربطه بأقرب متجر فرع له بناءً على الموقع الجغرافي.',
+        parameters: z.object({
+            productName: z.string().describe('اسم المنتج المطلوب شراءه (مثلاً: آيفون 15، حليب، خبز)'),
+            isFake: z.boolean().optional().describe('هل الطلب من عميل وهمي للمحاكاة؟')
+        }),
+        execute: async ({ productName, isFake }: { productName: string, isFake?: boolean }) => {
+            const time = new Date().toISOString();
+            try {
+                const { processShoppingOrder } = await import('./shopping');
+                const result = await processShoppingOrder({ productName, userId: userId || '', isFake });
+
+                if (result.success) {
+                    return {
+                        success: true,
+                        message: `[نظام التسوق]: تم توجيه طلب (${productName}) بنجاح إلى "${result.storeName}" في ${result.address}. المسافة: ${result.distance} كم. العميل المستلم: ${result.customerName}.`
+                    };
+                } else {
+                    return { success: false, error: result.error };
+                }
+            } catch (error: any) {
+                console.error(`[${time}] Shopping Tool Fail: ${error.message}`);
+                return { success: false, error: error.message };
+            }
+        }
+    } as any);
+
     return tools;
 };
