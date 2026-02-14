@@ -62,3 +62,51 @@ export async function updateSystemPrompt(newPrompt: string): Promise<boolean> {
         return false;
     }
 }
+
+export async function getAppConfig(key: string, defaultValue: string = ''): Promise<string> {
+    const { data, error } = await supabase
+        .from('app_config')
+        .select('value')
+        .eq('key', key)
+        .single();
+
+    if (error || !data) return defaultValue;
+    return data.value;
+}
+
+export async function updateAppConfig(key: string, value: string): Promise<boolean> {
+    const { error } = await supabase
+        .from('app_config')
+        .upsert({ key, value })
+        .select();
+
+    if (error) {
+        console.error(`Error updating config ${key}:`, error);
+        return false;
+    }
+    return true;
+}
+
+export interface AppFeatures {
+    voiceEnabled: boolean;
+    imagesEnabled: boolean;
+    registrationEnabled: boolean;
+    defaultLanguage: string;
+}
+
+export async function getAppFeatures(): Promise<AppFeatures> {
+    const [voice, images, reg, lang] = await Promise.all([
+        getAppConfig('feature_voice_enabled', 'true'),
+        getAppConfig('feature_image_generation_enabled', 'true'),
+        getAppConfig('public_registration_enabled', 'true'),
+        getAppConfig('system_language', 'ar-SA')
+    ]);
+
+    return {
+        voiceEnabled: voice === 'true',
+        imagesEnabled: images === 'true',
+        registrationEnabled: reg === 'true',
+        defaultLanguage: lang
+    };
+}
+
