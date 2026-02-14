@@ -93,6 +93,7 @@ export async function POST(req: Request) {
         // Fetch long-term memories if user is logged in
         if (userId) {
             const memories = await getTopMemories(userId, 15, supabaseClient);
+            console.log(`[API] userId: ${userId} | Memories Fetched: ${memories.length}`);
             if (memories.length > 0) {
                 const memoryContext = `\n[ذاكرة المستخدم طويلة الأمد]:\n${memories.map((m, i) => `${i + 1}. ${m}`).join('\n')}\nاستخدم هذه الحقائق لتخصيص ردودك وجعلها أكثر ذكاءً وتناسباً مع المستخدم.`;
                 basePrompt += memoryContext;
