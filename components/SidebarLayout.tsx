@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MessageSquare, Workflow, Code, Bot, Settings, Plus, LogOut, Loader2, Home, ShoppingBag } from 'lucide-react';
@@ -144,10 +146,10 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
                     {/* Shopping & Discovery Section */}
                     <div className="mt-8 px-3 space-y-1">
                         <div className="px-3 mb-2">
-                          <p className="text-[10px] uppercase tracking-widest font-black text-gray-500">التجارة والتبادل</p>
+                            <p className="text-[10px] uppercase tracking-widest font-black text-gray-500">التجارة والتبادل</p>
                         </div>
-                        
-                        <Link 
+
+                        <Link
                             href="/marketplace"
                             className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-400 hover:text-indigo-400 hover:bg-white/5 rounded-xl transition-all group"
                         >
@@ -155,7 +157,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
                             <span>قائمة التسوق الموحدة</span>
                         </Link>
 
-                        <Link 
+                        <Link
                             href="/upgrade"
                             className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-indigo-400 bg-indigo-500/5 border border-indigo-500/20 hover:bg-indigo-500/10 rounded-xl transition-all group mt-2"
                         >
