@@ -99,45 +99,61 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
                 </button>
             </aside>
 
-            {/* 2. History Sidebar (Contextual) */}
+            {/* 2. History Sidebar (Optimized for Speed) */}
             <aside className="w-64 bg-[#111111] border-r border-[#27272a] flex flex-col hidden lg:flex shrink-0">
-                <div className="p-4 border-b border-[#27272a]">
+                {/* Fixed "New Chat" Header for Instant Access */}
+                <div className="p-4 border-b border-[#27272a] bg-[#111111]/80 backdrop-blur-md sticky top-0 z-10">
                     <button
                         onClick={handleNewChat}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#27272a] hover:bg-[#323235] border border-[#3f3f46] rounded-xl text-sm font-medium transition-all group"
+                        className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-indigo-600 hover:bg-indigo-500 border border-indigo-500/50 rounded-xl text-sm font-bold text-white transition-all shadow-lg shadow-indigo-600/20 active:scale-[0.98] group"
                     >
-                        <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
+                        <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
                         محادثة جديدة
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
-                    <h3 className="px-3 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">المحادثات الأخيرة</h3>
+                <div className="flex-1 overflow-y-auto p-3 space-y-4 custom-scrollbar">
                     {isLoading ? (
                         <div className="flex justify-center py-8">
                             <Loader2 className="w-5 h-5 animate-spin text-gray-600" />
                         </div>
                     ) : chats.length === 0 ? (
-                        <div className="px-3 py-8 text-center">
-                            <p className="text-xs text-gray-600 italic">لا توجد محادثات سابقة</p>
-                        </div>
+                        <div className="px-3 py-8 text-center text-gray-600 italic text-xs">لا توجد محادثات سابقة</div>
                     ) : (
-                        chats.map((chat) => (
-                            <Link
-                                key={chat.id}
-                                href={`/?id=${chat.id}`}
-                                className={`
-                                    flex items-center gap-3 px-3 py-3 rounded-xl transition-all group
-                                    ${currentChatId === chat.id
-                                        ? 'bg-indigo-600/10 border border-indigo-500/30 text-indigo-400'
-                                        : 'text-gray-400 hover:bg-[#27272a] hover:text-white border border-transparent'
-                                    }
-                                `}
-                            >
-                                <MessageSquare className={`w-4 h-4 ${currentChatId === chat.id ? 'text-indigo-400' : 'text-gray-600 group-hover:text-gray-300'}`} />
-                                <span className="text-sm truncate font-medium">{chat.title || 'محادثة بلا عنوان'}</span>
-                            </Link>
-                        ))
+                        (() => {
+                            const today = new Date().toISOString().split('T')[0];
+                            const todayChats = chats.filter(c => c.created_at.startsWith(today));
+                            const earlierChats = chats.filter(c => !c.created_at.startsWith(today));
+
+                            const renderChatGroup = (title: string, items: Chat[]) => (
+                                <div className="space-y-1">
+                                    <h3 className="px-3 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">{title}</h3>
+                                    {items.map((chat) => (
+                                        <Link
+                                            key={chat.id}
+                                            href={`/?id=${chat.id}`}
+                                            className={`
+                                                flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group
+                                                ${currentChatId === chat.id
+                                                    ? 'bg-indigo-600/15 border border-indigo-500/40 text-indigo-400'
+                                                    : 'text-gray-400 hover:bg-[#27272a] hover:text-white border border-transparent'
+                                                }
+                                            `}
+                                        >
+                                            <MessageSquare className={`w-4 h-4 ${currentChatId === chat.id ? 'text-indigo-400' : 'text-gray-600 group-hover:text-gray-300'}`} />
+                                            <span className="text-sm truncate font-medium">{chat.title || 'محادثة بلا عنوان'}</span>
+                                        </Link>
+                                    ))}
+                                </div>
+                            );
+
+                            return (
+                                <>
+                                    {todayChats.length > 0 && renderChatGroup('اليوم', todayChats)}
+                                    {earlierChats.length > 0 && renderChatGroup('سابقاً', earlierChats)}
+                                </>
+                            );
+                        })()
                     )}
 
                     {/* Memory Sidebar Section (High Impact Observability) */}

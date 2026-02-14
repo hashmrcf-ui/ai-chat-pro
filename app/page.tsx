@@ -153,49 +153,40 @@ function ChatContent() {
   return (
     <SidebarLayout>
       <div className="flex flex-col h-full bg-[#1e1e1e]">
-        <header className="h-16 border-b border-[#27272a] bg-[#1a1a1a] flex items-center justify-between px-6">
+        {/* Optimized Header (Cleaner) */}
+        <header className="h-14 border-b border-[#27272a] bg-[#1a1a1a] flex items-center justify-between px-6 shrink-0">
           <div className="flex items-center gap-3">
             <button onClick={handleNewChat} className="lg:hidden p-2 hover:bg-gray-800 rounded-lg text-gray-400">
               <Plus className="w-5 h-5" />
             </button>
-            <Logo iconSize="w-8 h-8" textSize="text-lg text-white" showText={true} />
+            <Logo iconSize="w-6 h-6" textSize="text-md text-white font-bold" showText={true} />
+          </div>
+          <div className="flex items-center gap-2">
             {user?.is_admin && (
-              <a href="/admin" className="ml-4 px-3 py-1 bg-amber-500/10 text-amber-500 text-xs font-bold rounded-full border border-amber-500/20 hover:bg-amber-500/20 transition-all">
+              <a href="/admin" className="px-3 py-1 bg-amber-500/10 text-amber-500 text-[10px] font-bold rounded-full border border-amber-500/20 hover:bg-amber-500/20 transition-all">
                 ADMIN
               </a>
             )}
-          </div>
-          <div className="flex items-center gap-4">
-            <select
-              value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              className="bg-[#27272a] border border-[#3f3f46] text-white rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 cursor-pointer"
-            >
-              {features.ai.models.map((model) => (
-                <option key={model} value={model} className="bg-[#212121]">
-                  {model.split('/')[1] || model}
-                </option>
-              ))}
-            </select>
+            <div className="text-[10px] text-gray-600 bg-[#27272a] px-2 py-1 rounded text-uppercase tracking-tighter">S_01_OPTIMIZED</div>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-6 py-8">
+        <div className="flex-1 overflow-y-auto px-6 py-8 custom-scrollbar">
           {messages.length === 0 ? (
             <div className="h-full flex items-center justify-center text-center px-4">
-              <div>
-                <div className="mb-6 animate-pulse flex justify-center">
-                  <Logo iconSize="w-20 h-20" showText={false} />
+              <div className="max-w-md">
+                <div className="mb-4 flex justify-center opacity-20">
+                  <Logo iconSize="w-16 h-16" showText={false} />
                 </div>
-                <h2 className="text-2xl font-bold mb-2 text-white">مرحباً {user?.full_name?.split(' ')[0]}!</h2>
-                <p className="text-gray-400">ابدأ محادثة جديدة مع Vibe AI. سيتم حفظ كل شيء في حسابك.</p>
+                <h2 className="text-xl font-bold mb-2 text-white">مرحباً {user?.full_name?.split(' ')[0]}!</h2>
+                <p className="text-sm text-gray-500">ابدأ محادثة جديدة الآن. تم ترتيب كل شيء لسرعة الوصول.</p>
               </div>
             </div>
           ) : (
             <div className="space-y-6 max-w-4xl mx-auto">
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-[#27272a] text-gray-200 rounded-tl-none border border-[#3f3f46]'}`}>
+                  <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none shadow-lg shadow-indigo-500/10' : 'bg-[#27272a] text-gray-200 rounded-tl-none border border-[#3f3f46]'}`}>
                     <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                   </div>
                 </div>
@@ -203,7 +194,7 @@ function ChatContent() {
               {loading && (
                 <div className="flex justify-start">
                   <div className="bg-[#27272a] text-gray-400 rounded-2xl px-4 py-3 border border-[#3f3f46] flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin text-indigo-500" />
                     <span className="text-xs">يفكر...</span>
                   </div>
                 </div>
@@ -212,39 +203,43 @@ function ChatContent() {
           )}
         </div>
 
+        {/* Floating Optimized Input Area */}
         <div className="p-4 bg-[#1a1a1a] border-t border-[#27272a]">
-          <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+          <form onSubmit={handleSubmit} className="max-w-4xl mx-auto flex flex-col gap-3">
             <div className="relative group">
+              {/* Centralized Model & Quick Actions Controller (Left Side) */}
+              <div className="absolute left-2 top-2 bottom-2 flex items-center gap-1 bg-[#1e1e1e] rounded-xl px-1 border border-[#3f3f46]/50">
+                <select
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  className="bg-transparent border-none text-[10px] font-bold text-gray-400 hover:text-white px-2 py-1 outline-none cursor-pointer max-w-[80px] truncate"
+                >
+                  {features.ai.models.map((model) => (
+                    <option key={model} value={model} className="bg-[#1a1a1a]">
+                      {model.split('/')[1]?.toUpperCase() || model}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <input
+                autoFocus
                 value={input}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
-                placeholder="اكتب رسالتك لـ Vibe AI..."
-                className="w-full bg-[#27272a] border border-[#3f3f46] rounded-2xl pl-5 pr-32 py-4 text-white text-sm outline-none focus:border-indigo-500 transition-all shadow-inner"
+                placeholder="اسأل Vibe AI شيئاً..."
+                className="w-full bg-[#27272a] border border-[#3f3f46] rounded-2xl pl-24 pr-12 py-4 text-white text-sm outline-none focus:border-indigo-500 transition-all shadow-xl"
                 disabled={loading}
               />
-              <div className="absolute right-2 top-2 flex items-center gap-1">
-                {/* Voice Feature */}
+
+              <div className="absolute right-2 top-2 bottom-2 flex items-center gap-1">
                 {appFeatures.voiceEnabled && (
                   <button
                     type="button"
-                    className="h-10 w-10 flex items-center justify-center text-gray-400 hover:text-indigo-400 hover:bg-[#323235] rounded-xl transition-all"
-                    title="Voice Chat (Coming Soon)"
+                    className="h-10 w-10 flex items-center justify-center text-gray-500 hover:text-indigo-400 hover:bg-[#323235] rounded-xl transition-all"
                   >
                     <Mic className="w-5 h-5" />
                   </button>
                 )}
-
-                {/* Image Feature */}
-                {appFeatures.imagesEnabled && (
-                  <button
-                    type="button"
-                    className="h-10 w-10 flex items-center justify-center text-gray-400 hover:text-pink-400 hover:bg-[#323235] rounded-xl transition-all"
-                    title="Generate Image (Coming Soon)"
-                  >
-                    <ImageIcon className="w-5 h-5" />
-                  </button>
-                )}
-
                 <button
                   type="submit"
                   disabled={loading || !input.trim()}
