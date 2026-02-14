@@ -17,6 +17,7 @@ export default function SignupPage() {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isRegistrationClosed, setIsRegistrationClosed] = useState(false);
+    const [userIp, setUserIp] = useState('');
 
     useEffect(() => {
         // Check if registration is enabled
@@ -27,7 +28,20 @@ export default function SignupPage() {
                 setIsRegistrationClosed(true);
             }
         };
+
+        // Fetch User IP
+        const fetchIp = async () => {
+            try {
+                const res = await fetch('/api/auth/ip');
+                const data = await res.json();
+                setUserIp(data.ip);
+            } catch (err) {
+                console.error('Failed to fetch IP:', err);
+            }
+        };
+
         checkRegistration();
+        fetchIp();
     }, []);
 
     const toggleTheme = () => {
@@ -42,24 +56,29 @@ export default function SignupPage() {
         setError('');
 
         if (isRegistrationClosed) {
-            setError('Registration is currently closed.');
+            setError('التسجيل مغلق حالياً من قبل المسؤول.');
             return;
         }
 
         if (password !== confirmPassword) {
-            setError('Passwords do not match');
+            setError('كلمات المرور غير متطابقة');
             return;
         }
 
         setIsLoading(true);
 
-        const result = await createUser(name, email, password);
+        const result = await createUser(name, email, password, userIp);
 
         if (result.success) {
             // Auto-login after signup
             router.push('/login');
         } else {
-            setError(result.error || 'Signup failed');
+            // Prominent error mapping for IP restriction
+            if (result.error?.includes('unique_registration_ip') || result.error?.includes('last_ip')) {
+                setError('هذا الجهاز مسجل به حساب آخر بالفعل. يُسمح بحساب واحد فقط لكل جهاز.');
+            } else {
+                setError(result.error || 'فشل عملية التسجيل');
+            }
         }
 
         setIsLoading(false);

@@ -50,13 +50,14 @@ export async function toggleUserAdmin(userId: string, status: boolean): Promise<
 }
 
 // Create a new user (Signup)
-export async function createUser(name: string, email: string, password: string): Promise<{ success: boolean; error?: string }> {
+export async function createUser(name: string, email: string, password: string, lastIp?: string): Promise<{ success: boolean; error?: string }> {
     const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
             data: {
                 full_name: name,
+                last_ip: lastIp,
             }
         }
     });
