@@ -6,12 +6,47 @@ export interface UserProfile {
     full_name: string;
     avatar_url: string;
     is_admin: boolean;
+    is_banned: boolean; // New field
     created_at: string;
 }
 
 export interface AuthSession {
     user: any;
     access_token: string;
+}
+
+// TOGGLE BAN STATUS (Admin only)
+export async function toggleUserBan(userId: string, status: boolean): Promise<boolean> {
+    const isAdmin = await checkIsAdmin();
+    if (!isAdmin) return false;
+
+    const { error } = await supabase
+        .from('users')
+        .update({ is_banned: status })
+        .eq('id', userId);
+
+    if (error) {
+        console.error('Error toggling ban:', error);
+        return false;
+    }
+    return true;
+}
+
+// TOGGLE ADMIN STATUS (Admin only)
+export async function toggleUserAdmin(userId: string, status: boolean): Promise<boolean> {
+    const isAdmin = await checkIsAdmin();
+    if (!isAdmin) return false;
+
+    const { error } = await supabase
+        .from('users')
+        .update({ is_admin: status })
+        .eq('id', userId);
+
+    if (error) {
+        console.error('Error toggling admin:', error);
+        return false;
+    }
+    return true;
 }
 
 // Create a new user (Signup)
@@ -60,6 +95,14 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
     if (error) {
         console.error('Error fetching user profile:', error);
         return null;
+    }
+
+    // Check for ban
+    if ((data as any).is_banned) {
+        // Optional: Trigger logout if they are banned but have a valid session
+        // await supabase.auth.signOut(); 
+        // return null; 
+        console.warn('User is banned.');
     }
 
     return data as UserProfile;

@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, FormEvent, ChangeEvent, useEffect, Suspense } from 'react';
-import { Send, Loader2, Plus } from 'lucide-react';
+import { Send, Loader2, Plus, Mic, Image as ImageIcon } from 'lucide-react';
 import SidebarLayout from '@/components/SidebarLayout';
 import { features } from '@/lib/features';
 import { Logo } from '@/components/Logo';
 import { getCurrentUser, UserProfile } from '@/lib/auth';
 import { getChatMessages, createChat, saveMessage } from '@/lib/db';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { getAppFeatures, AppFeatures } from '@/lib/config';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -27,6 +28,13 @@ function ChatContent() {
   const [selectedModel, setSelectedModel] = useState(features.ai.models[0]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(chatIdFromUrl);
 
+  const [appFeatures, setAppFeatures] = useState<AppFeatures>({
+    voiceEnabled: true,
+    imagesEnabled: true,
+    registrationEnabled: true,
+    defaultLanguage: 'ar-SA'
+  });
+
   useEffect(() => {
     const init = async () => {
       const currentUser = await getCurrentUser();
@@ -35,6 +43,9 @@ function ChatContent() {
         return;
       }
       setUser(currentUser);
+
+      const config = await getAppFeatures();
+      setAppFeatures(config);
 
       if (chatIdFromUrl) {
         const history = await getChatMessages(chatIdFromUrl);
@@ -181,16 +192,40 @@ function ChatContent() {
                 value={input}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
                 placeholder="اكتب رسالتك لـ Vibe AI..."
-                className="w-full bg-[#27272a] border border-[#3f3f46] rounded-2xl px-5 py-4 text-white text-sm outline-none focus:border-indigo-500 transition-all shadow-inner"
+                className="w-full bg-[#27272a] border border-[#3f3f46] rounded-2xl pl-5 pr-32 py-4 text-white text-sm outline-none focus:border-indigo-500 transition-all shadow-inner"
                 disabled={loading}
               />
-              <button
-                type="submit"
-                disabled={loading || !input.trim()}
-                className="absolute right-2 top-2 h-10 w-10 flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 text-white rounded-xl transition-all shadow-lg active:scale-95"
-              >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              </button>
+              <div className="absolute right-2 top-2 flex items-center gap-1">
+                {/* Voice Feature */}
+                {appFeatures.voiceEnabled && (
+                  <button
+                    type="button"
+                    className="h-10 w-10 flex items-center justify-center text-gray-400 hover:text-indigo-400 hover:bg-[#323235] rounded-xl transition-all"
+                    title="Voice Chat (Coming Soon)"
+                  >
+                    <Mic className="w-5 h-5" />
+                  </button>
+                )}
+
+                {/* Image Feature */}
+                {appFeatures.imagesEnabled && (
+                  <button
+                    type="button"
+                    className="h-10 w-10 flex items-center justify-center text-gray-400 hover:text-pink-400 hover:bg-[#323235] rounded-xl transition-all"
+                    title="Generate Image (Coming Soon)"
+                  >
+                    <ImageIcon className="w-5 h-5" />
+                  </button>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading || !input.trim()}
+                  className="h-10 w-10 flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 text-white rounded-xl transition-all shadow-lg active:scale-95"
+                >
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
           </form>
         </div>

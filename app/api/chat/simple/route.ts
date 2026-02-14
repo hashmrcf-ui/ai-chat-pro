@@ -3,6 +3,8 @@ import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { createOpenAI } from '@ai-sdk/openai';
 import { features } from '@/lib/features';
 import { getSystemPrompt } from '@/lib/config';
+import { checkContent, logSecurityEvent } from '@/lib/security';
+import { getActiveModels } from '@/lib/models';
 
 export const maxDuration = 60;
 
@@ -24,8 +26,33 @@ const customModel = (modelName: string) => {
 
 export async function POST(req: Request) {
     try {
-        const { messages, model } = await req.json();
-        const targetModel = model || features.ai.models[0];
+        const { messages, model, userId } = await req.json();
+
+        // Dynamic Model Selection
+        const activeModels = await getActiveModels();
+        // Fallback to DB default if exists, otherwise first active, otherwise features default
+        const dbDefault = activeModels.find(m => m.is_default)?.model_id;
+        const fallback = dbDefault || activeModels[0]?.model_id || features.ai.models[0];
+
+        // Ensure requested model is actually active, else use fallback
+        const isRequestedActive = activeModels.some(m => m.model_id === model);
+        const targetModel = (model && isRequestedActive) ? model : fallback;
+
+        // 1. SECURITY CHECK
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage && lastMessage.role === 'user') {
+            const securityResult = checkContent(lastMessage.content);
+            if (securityResult.flagged) {
+                await logSecurityEvent(userId, lastMessage.content, securityResult);
+
+                if (securityResult.severity === 'critical' || securityResult.severity === 'high') {
+                    return Response.json({
+                        content: 'عذراً، محتوى رسالتك ينتهك سياسة الاستخدام والأمان.',
+                        error: true,
+                    }, { status: 400 });
+                }
+            }
+        }
 
         // Fetch dynamic system prompt
         const systemPrompt = await getSystemPrompt();

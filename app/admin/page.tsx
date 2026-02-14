@@ -1,12 +1,12 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { checkIsAdmin, getAllUsers, UserProfile, logoutUser } from '@/lib/auth';
 import { getStatsAdmin, getAllChatsAdmin, getChatMessages, Message } from '@/lib/db';
-import { LayoutDashboard, Users, MessageSquare, Shield, LogOut, Loader2, ArrowLeft, Eye, X } from 'lucide-react';
+import { getDailyMessageCounts, getTopUsers, DailyMessageStat, TopUserStat } from '@/lib/analytics';
+import { LayoutDashboard, Users, MessageSquare, Shield, LogOut, Loader2, ArrowLeft, Eye, X, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -18,6 +18,10 @@ export default function AdminDashboard() {
     const [chatMessages, setChatMessages] = useState<Message[]>([]);
     const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
+    // Analytics Data
+    const [dailyStats, setDailyStats] = useState<DailyMessageStat[]>([]);
+    const [topUsers, setTopUsers] = useState<TopUserStat[]>([]);
+
     useEffect(() => {
         const init = async () => {
             const admin = await checkIsAdmin();
@@ -27,14 +31,18 @@ export default function AdminDashboard() {
             }
 
             try {
-                const [appStats, allUsers, allChats] = await Promise.all([
+                const [appStats, allUsers, allChats, dailyData, topUsersData] = await Promise.all([
                     getStatsAdmin(),
                     getAllUsers(),
-                    getAllChatsAdmin()
+                    getAllChatsAdmin(),
+                    getDailyMessageCounts(30),
+                    getTopUsers(5)
                 ]);
                 setStats(appStats);
                 setUsers(allUsers);
                 setChats(allChats);
+                setDailyStats(dailyData || []);
+                setTopUsers(topUsersData || []);
             } catch (error) {
                 console.error('Failed to fetch admin data:', error);
             } finally {
@@ -82,6 +90,18 @@ export default function AdminDashboard() {
                             <LayoutDashboard className="w-5 h-5" />
                             Dashboard
                         </Link>
+                        <Link href="/admin/users" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                            <Users className="w-5 h-5" />
+                            User Management
+                        </Link>
+                        <Link href="/admin/alerts" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                            <Shield className="w-5 h-5" />
+                            Security Alerts
+                        </Link>
+                        <Link href="/admin/settings" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                            <div className="w-5 h-5" /> {/* Placeholder icon */}
+                            Settings
+                        </Link>
                         <Link href="/" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                             <ArrowLeft className="w-5 h-5" />
                             Return to App
@@ -103,11 +123,11 @@ export default function AdminDashboard() {
             <main className="md:ml-64 p-8">
                 <header className="mb-8">
                     <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-                    <p className="text-gray-600 dark:text-gray-400">Monitor users and all application activities.</p>
+                    <p className="text-gray-600 dark:text-gray-400">Overview of system performance and user activity.</p>
                 </header>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="p-6 rounded-2xl bg-white dark:bg-[#212121] border border-gray-200 dark:border-gray-800 shadow-sm">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
@@ -131,11 +151,82 @@ export default function AdminDashboard() {
                     <div className="p-6 rounded-2xl bg-white dark:bg-[#212121] border border-gray-200 dark:border-gray-800 shadow-sm">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400">
-                                <Shield className="w-6 h-6" />
+                                <TrendingUp className="w-6 h-6" />
                             </div>
-                            <h3 className="font-semibold">Admin Users</h3>
+                            <h3 className="font-semibold">Total Messages</h3>
                         </div>
-                        <p className="text-4xl font-bold">{users.filter(u => u.is_admin).length}</p>
+                        <p className="text-4xl font-bold">{stats.messages}</p>
+                    </div>
+                </div>
+
+                {/* Charts Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+                    {/* Activity Chart */}
+                    <div className="lg:col-span-2 p-6 rounded-2xl bg-white dark:bg-[#212121] border border-gray-200 dark:border-gray-800 shadow-sm">
+                        <h3 className="text-lg font-bold mb-6">Message Activity (30 Days)</h3>
+                        <div className="h-[300px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={dailyStats}>
+                                    <defs>
+                                        <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                                    <XAxis
+                                        dataKey="day"
+                                        tickFormatter={(str) => new Date(str).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                        stroke="#9CA3AF"
+                                        tickLine={false}
+                                        axisLine={false}
+                                        dy={10}
+                                    />
+                                    <YAxis
+                                        stroke="#9CA3AF"
+                                        tickLine={false}
+                                        axisLine={false}
+                                        dx={-10}
+                                    />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px', color: '#fff' }}
+                                    />
+                                    <Area type="monotone" dataKey="count" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorCount)" strokeWidth={3} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    {/* Top Users Chart */}
+                    <div className="p-6 rounded-2xl bg-white dark:bg-[#212121] border border-gray-200 dark:border-gray-800 shadow-sm">
+                        <h3 className="text-lg font-bold mb-6">Top Active Users</h3>
+                        <div className="h-[300px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={topUsers} layout="vertical" margin={{ left: -20 }}>
+                                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#E5E7EB" />
+                                    <XAxis type="number" hide />
+                                    <YAxis
+                                        type="category"
+                                        dataKey="email"
+                                        width={100}
+                                        tickFormatter={(val) => val.split('@')[0]}
+                                        stroke="#9CA3AF"
+                                        tick={{ fontSize: 12 }}
+                                        tickLine={false}
+                                        axisLine={false}
+                                    />
+                                    <Tooltip
+                                        cursor={{ fill: 'transparent' }}
+                                        contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px', color: '#fff' }}
+                                    />
+                                    <Bar dataKey="message_count" fill="#10b981" radius={[0, 4, 4, 0]} barSize={32}>
+                                        {topUsers.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#facc15'][index % 5]} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
                 </div>
 
@@ -246,8 +337,8 @@ export default function AdminDashboard() {
                                             </span>
                                         </div>
                                         <div className={`px-4 py-3 rounded-2xl max-w-[85%] text-sm ${msg.role === 'user'
-                                                ? 'bg-blue-600 text-white rounded-tr-none'
-                                                : 'bg-gray-100 dark:bg-[#2f2f2f] text-gray-800 dark:text-gray-200 rounded-tl-none'
+                                            ? 'bg-blue-600 text-white rounded-tr-none'
+                                            : 'bg-gray-100 dark:bg-[#2f2f2f] text-gray-800 dark:text-gray-200 rounded-tl-none'
                                             }`}>
                                             {msg.content}
                                         </div>
