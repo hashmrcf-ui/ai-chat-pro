@@ -76,6 +76,23 @@ export async function loginUser(email: string, password: string): Promise<{ succ
     return { success: true };
 }
 
+// Login with Google
+export async function loginWithGoogle(): Promise<{ success: boolean; error?: string }> {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+            queryParams: {
+                access_type: 'offline',
+                prompt: 'consent',
+            },
+        },
+    });
+
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+}
+
 // Logout user
 export async function logoutUser(): Promise<void> {
     await supabase.auth.signOut();
