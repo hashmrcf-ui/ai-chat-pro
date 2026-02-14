@@ -114,5 +114,6 @@ export default function UpgradePage() {
           </div>
         </div>
       </SidebarLayout>
-      );
+    </Suspense>
+  );
 }
