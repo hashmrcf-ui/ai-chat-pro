@@ -65,9 +65,12 @@ export async function POST(req: Request) {
 
     } catch (error) {
         console.error('Chat error:', error);
+        // Even if the AI provider rejects the message (due to safety filters), 
+        // we return a standard content object to let the UI display it naturally.
+        const errorMessage = error instanceof Error ? error.message : 'عذراً، تعذر الحصول على رد من الذكاء الاصطناعي.';
         return Response.json({
-            content: 'عذراً، حدث خطأ في الاتصال بالذكاء الاصطناعي.',
+            content: errorMessage,
             error: true,
-        }, { status: 500 });
+        });
     }
 }

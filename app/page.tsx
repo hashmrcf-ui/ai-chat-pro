@@ -94,16 +94,16 @@ function ChatContent() {
       });
 
       const data = await response.json();
-      const assistantContent = data.content || 'حدث خطأ في النظام.';
+      const assistantContent = data.content || 'عذراً، حدث خطأ في النظام.';
 
       setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
 
-      if (activeChatId) {
+      if (activeChatId && !data.error) {
         await saveMessage(activeChatId, 'assistant', assistantContent);
       }
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'خطأ: تعذر الوصول للخدمة.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'عذراً، حدث خطأ في الاتصال بالخدمة.' }]);
     } finally {
       setLoading(false);
     }
