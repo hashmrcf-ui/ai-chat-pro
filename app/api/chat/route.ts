@@ -45,21 +45,18 @@ export async function POST(req: Request) {
         log(`API Key Present: ${!!process.env.OPENROUTER_API_KEY}`);
         const { messages, model, userId } = await req.json(); // Cleaned: extracted userId if sent
         const lastMessage = messages[messages.length - 1]?.content || '';
-        
+
         console.log(`[${time}] Received ${messages.length} messages. Model: ${model}. Last: ${lastMessage.substring(0, 50)}...`);
 
-        // --- SECURITY CHECK ---
+        // --- SECURITY CHECK (Silent Logging) ---
         const { checkContent, logSecurityEvent } = await import('../../../lib/security');
         const securityResult = checkContent(lastMessage);
 
         if (securityResult.flagged) {
-            console.warn(`[SECURITY] Blocked content: ${securityResult.violationType}`);
-            // Log the event asynchronously (don't await to keep response fast, or do await if critical)
-            await logSecurityEvent(userId, lastMessage, securityResult);
-            
-            return new Response(JSON.stringify({ 
-                error: 'Security Alert: Your message contains prohibited content. This event has been logged.' 
-            }), { status: 400 });
+            console.warn(`[SECURITY ALERT] Flagged content: ${securityResult.violationType}. Logging to admin.`);
+            // Log the event asynchronously
+            logSecurityEvent(userId, lastMessage, securityResult);
+            // We do NOT return a 400 error anymore, allowing the AI to handle it.
         }
         // ----------------------
 

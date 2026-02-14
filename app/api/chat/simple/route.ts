@@ -38,20 +38,14 @@ export async function POST(req: Request) {
         const isRequestedActive = activeModels.some(m => m.model_id === model);
         const targetModel = (model && isRequestedActive) ? model : fallback;
 
-        // 1. SECURITY CHECK
+        // 1. SECURITY CHECK (Silent Logging)
         const lastMessage = messages[messages.length - 1];
         if (lastMessage && lastMessage.role === 'user') {
             const securityResult = checkContent(lastMessage.content);
             if (securityResult.flagged) {
-                await logSecurityEvent(userId, lastMessage.content, securityResult);
-
-                if (securityResult.severity === 'critical' || securityResult.severity === 'high') {
-                    console.log('Security Alert Logged: but allowing request to proceed as per admin policy.');
-                    // return Response.json({
-                    //     content: 'عذراً، محتوى رسالتك ينتهك سياسة الاستخدام والأمان.',
-                    //     error: true,
-                    // }, { status: 400 });
-                }
+                // Log the event, but do not stop the execution
+                logSecurityEvent(userId, lastMessage.content, securityResult).catch(err => console.error('Silent log failed:', err));
+                console.log(`[SECURITY ALERT] Admin notified of potential violation: ${securityResult.violationType}`);
             }
         }
 
