@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { MessageSquare, Workflow, Code, Bot, Settings, Plus, LogOut, Loader2, Home } from 'lucide-react';
+import { MessageSquare, Workflow, Code, Bot, Settings, Plus, LogOut, Loader2, Home, ShoppingBag } from 'lucide-react';
 import { ReactNode, useEffect, useState } from 'react';
 import { Logo } from './Logo';
 import MemorySidebar from './MemorySidebar';
+import OrderTracking from './OrderTracking';
 import { getCurrentUser, logoutUser, UserProfile } from '@/lib/auth';
 import { getUserChats, Chat } from '@/lib/db';
 
@@ -155,6 +156,26 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
                             );
                         })()
                     )}
+
+                    {/* Shopping & Order Tracking */}
+                    <OrderTracking />
+
+                    {/* Simulation Button (Only for testing/demo) */}
+                    <div className="px-3 pt-4">
+                        <button
+                            onClick={async () => {
+                                const { triggerSimulationOrder } = await import('@/lib/simulation');
+                                const res = await triggerSimulationOrder();
+                                if (res.success) {
+                                    alert(`تمت المحاكاة: ${res.product} من ${res.customerName}`);
+                                }
+                            }}
+                            className="w-full py-2 px-3 text-[10px] uppercase tracking-widest font-bold text-indigo-400 border border-indigo-500/20 rounded-lg hover:bg-indigo-500/10 transition-all flex items-center justify-center gap-2"
+                        >
+                            <ShoppingBag className="w-3 h-3" />
+                            محاكاة طلب وهمي
+                        </button>
+                    </div>
 
                     {/* Memory Sidebar Section (High Impact Observability) */}
                     {user?.id && <MemorySidebar userId={user.id} />}
