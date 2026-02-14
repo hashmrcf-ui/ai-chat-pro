@@ -58,3 +58,28 @@ export async function logSecurityEvent(userId: string | undefined, content: stri
         console.error('Error logging security event:', err);
     }
 }
+
+export function resolveSafetyError(rawError: string): string {
+    const technicalKeywords = [
+        'moderation', 'flagged', 'illicit', 'violent',
+        'safety policy', 'blocked', 'content filter',
+        'prohibited', 'sensitive'
+    ];
+
+    const isTechnicalError = technicalKeywords.some(keyword =>
+        rawError.toLowerCase().includes(keyword)
+    );
+
+    if (isTechnicalError) {
+        return `نعتذر، لا يمكنني تزويدك بمعلومات حول هذا الطلب تحديداً لالتزامي بسياسات السلامة والأمان.
+
+بإمكاني مساعدتك في:
+1- الحصول على معلومات عامة أو تعليمية حول الجوانب المسموح بها في هذا الموضوع.
+2- استكشاف بدائل قانونية وآمنة تماماً لتحقيق هدفك.
+3- الإجابة على أي استفسارات أخرى في مجالات مختلفة.
+
+كيف يمكنني مساعدتك بشكل آخر؟`;
+    }
+
+    return rawError;
+}

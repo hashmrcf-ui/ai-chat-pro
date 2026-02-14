@@ -112,6 +112,16 @@ export async function POST(req: Request) {
 
     } catch (error) {
         console.error(`[${time}] FATAL ERROR (All models failed): ${error}`);
+
+        const { resolveSafetyError } = await import('../../../lib/security');
+        const rawErrorMessage = error instanceof Error ? error.message : String(error);
+        const politeMessage = resolveSafetyError(rawErrorMessage);
+
+        if (politeMessage !== rawErrorMessage) {
+            // It was a safety block
+            return new Response(JSON.stringify({ error: politeMessage }), { status: 400 });
+        }
+
         return new Response(JSON.stringify({ error: 'System Overload: All AI models are currently unavailable. Please try again later.' }), { status: 503 });
     }
 }

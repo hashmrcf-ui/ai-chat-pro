@@ -65,11 +65,15 @@ export async function POST(req: Request) {
 
     } catch (error) {
         console.error('Chat error:', error);
-        // Even if the AI provider rejects the message (due to safety filters), 
-        // we return a standard content object to let the UI display it naturally.
-        const errorMessage = error instanceof Error ? error.message : 'عذراً، تعذر الحصول على رد من الذكاء الاصطناعي.';
+
+        const { resolveSafetyError } = await import('@/lib/security');
+        const rawErrorMessage = error instanceof Error ? error.message : 'عذراً، تعذر الحصول على رد من الذكاء الاصطناعي.';
+
+        // Transform technical safety errors into a polite Arabic response
+        const politeMessage = resolveSafetyError(rawErrorMessage);
+
         return Response.json({
-            content: errorMessage,
+            content: politeMessage,
             error: true,
         });
     }
