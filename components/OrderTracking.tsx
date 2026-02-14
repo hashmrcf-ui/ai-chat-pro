@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { ShoppingBag, Truck, MapPin } from 'lucide-react';
-import { createClient } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 
 interface Order {
     id: string;
@@ -19,7 +19,6 @@ interface Order {
 export default function OrderTracking() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
-    const supabase = createClient();
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -47,7 +46,7 @@ export default function OrderTracking() {
         // Subscribe to real-time changes
         const channel = supabase
             .channel('orders-channel')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'shopping_orders' }, (payload) => {
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'shopping_orders' }, (payload: any) => {
                 fetchOrders();
             })
             .subscribe();
