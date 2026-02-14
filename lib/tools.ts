@@ -91,30 +91,35 @@ export const getTools = (userId?: string) => {
                 importance: z.number().min(1).max(10).default(5).describe('مدى أهمية المعلومة من 1 إلى 10')
             })).describe('قائمة الذكريات الجديدة المراد حفظها')
         }),
-        execute: async ({ memories, userId }: { memories: any[], userId?: string }) => {
+        execute: async ({ memories }: { memories: any[] }) => {
             const time = new Date().toISOString();
-            console.log(`[${time}] Tool: updateMemories - Saving ${memories.length} memories`);
+            console.log(`[${time}] Tool: updateMemories - AI requested saving ${memories.length} facts. Context UserId: ${userId}`);
 
             try {
-                const { createClient } = await import('./supabase-server');
+                const { createClient } = await import('@/lib/supabase-server');
                 const supabase = await createClient();
 
                 let targetUserId = userId;
                 if (!targetUserId) {
+                    console.log(`[${time}] No userId in tool context, attempting to get from session...`);
                     const { data: { user } } = await supabase.auth.getUser();
                     targetUserId = user?.id;
                 }
 
-                if (!targetUserId) return { success: false, error: "لم يتم العثور على مستخدم لتخزين الذاكرة" };
+                if (!targetUserId) {
+                    console.error(`[${time}] [Memory Tool Fail] No UserId found.`);
+                    return { success: false, error: "لم يتم العثور على مستخدم لتخزين الذاكرة" };
+                }
 
                 const { saveMemory } = await import('./memories');
                 for (const m of memories) {
+                    console.log(`[${time}] Saving fact: "${m.content}" for user ${targetUserId}`);
                     await saveMemory(targetUserId, m.content, m.importance, supabase);
                 }
 
-                return { success: true, message: "تم تحديث ذاكرة النظام بنجاح." };
+                return { success: true, message: "تم تحديث ذاكرة النظام بنجاح. تذكرت هذه المعلومات للمستقبل." };
             } catch (error: any) {
-                console.error(`[${time}] Memory Update Failed: ${error.message}`);
+                console.error(`[${time}] Memory Tool Exception: ${error.message}`);
                 return { success: false, error: error.message };
             }
         }

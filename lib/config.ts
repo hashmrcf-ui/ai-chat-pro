@@ -26,7 +26,7 @@ export async function getSystemPrompt(): Promise<string> {
             .single();
 
         if (error || !data) {
-            console.warn('Failed to fetch system prompt, using default.', error);
+            console.log('[Config] System prompt not found in DB or error. Using DEFAULT Expert Strategist prompt.');
             // Default system prompt - Expert Strategist Persona
             return `أنت Vibe AI، المساعد الاستراتيجي والذكي الأكثر تطوراً.
 شخصيتك: تمزج بين دقة المهندس، إبداع المصمم، وبلاغة الأديب.

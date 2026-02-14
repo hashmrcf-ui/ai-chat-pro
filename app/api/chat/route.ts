@@ -101,12 +101,12 @@ export async function POST(req: Request) {
                 const { createClient } = await import('../../../lib/supabase-server');
                 const supabaseClient = await createClient();
 
-                const result = streamText({
+                // Move options to a variable to bypass TS error on maxSteps
+                const streamOptions: any = {
                     model: customModel(modelName),
                     system: basePrompt,
                     messages,
-                    maxSteps: 5, // Crucial for tools to work correctly
-                    // Dynamic tools loading based on features config
+                    maxSteps: 5,
                     tools: (await import('../../../lib/tools')).getTools(userId),
                     onChunk(event: any) {
                         if (event.chunk.type === 'text-delta') {
@@ -124,7 +124,9 @@ export async function POST(req: Request) {
                         const errorObj = error instanceof Error ? { message: error.message, stack: error.stack, name: error.name } : error;
                         log(`[${modelName}] Stream ERROR: ${JSON.stringify(errorObj)}`);
                     },
-                } as any);
+                };
+
+                const result = streamText(streamOptions);
 
                 console.log(`[${time}] Model ${modelName} initialized successfully. Returning stream.`);
                 return result.toTextStreamResponse();

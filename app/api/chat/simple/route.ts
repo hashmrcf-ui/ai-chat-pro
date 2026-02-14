@@ -67,11 +67,15 @@ export async function POST(req: Request) {
             content: basePrompt
         };
 
-        const result = await generateText({
+        const generateOptions: any = {
             model: customModel(targetModel),
-            system: systemMessage.content, // Use system prompt parameter
+            system: basePrompt,
             messages,
-        });
+            maxSteps: 5,
+            tools: (await import('@/lib/tools')).getTools(userId),
+        };
+
+        const result = await generateText(generateOptions);
 
         return Response.json({
             content: result.text,
