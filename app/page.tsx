@@ -51,6 +51,10 @@ function ChatContent() {
         const history = await getChatMessages(chatIdFromUrl);
         setMessages(history.map(m => ({ role: m.role as any, content: m.content })));
         setCurrentChatId(chatIdFromUrl);
+      } else {
+        // Reset state for New Chat
+        setMessages([]);
+        setCurrentChatId(null);
       }
 
       setIsInitializing(false);

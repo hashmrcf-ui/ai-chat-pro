@@ -117,7 +117,10 @@ export const getTools = (userId?: string) => {
                     await saveMemory(targetUserId, m.content, m.importance, supabase);
                 }
 
-                return { success: true, message: "تم تحديث ذاكرة النظام بنجاح. تذكرت هذه المعلومات للمستقبل." };
+                return {
+                    success: true,
+                    message: `تم تحديث ذاكرة النظام بنجاح. تذكرت المعلومات التالية: ${memories.map(m => m.content).join('، ')}.`
+                };
             } catch (error: any) {
                 console.error(`[${time}] Memory Tool Exception: ${error.message}`);
                 return { success: false, error: error.message };
