@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MessageSquare, Workflow, Code, Bot, Settings, Plus, LogOut, Loader2, Home } from 'lucide-react';
 import { ReactNode, useEffect, useState } from 'react';
+import { Logo } from './Logo';
+import MemorySidebar from './MemorySidebar';
 import { getCurrentUser, logoutUser, UserProfile } from '@/lib/auth';
 import { getUserChats, Chat } from '@/lib/db';
 
@@ -137,6 +139,9 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
                             </Link>
                         ))
                     )}
+
+                    {/* Memory Sidebar Section (High Impact Observability) */}
+                    {user?.id && <MemorySidebar userId={user.id} />}
                 </div>
 
                 {/* User Profile Info */}

@@ -139,7 +139,7 @@ export const getTools = (userId?: string) => {
 
                 return {
                     success: true,
-                    message: `تم تحديث ذاكرة النظام بنجاح. تذكرت المعلومات التالية: ${memories.map(m => m.content).join('، ')}.`
+                    message: `[نظام الذاكرة]: تم حفظ المعلومات بنجاح: "${memories.map(m => m.content).join('، ')}". يرجى إبلاغ المستخدم أنك تذكرت هذه التفاصيل الآن وستستخدمها في المستقبل.`
                 };
             } catch (error: any) {
                 const excMsg = `Memory Tool Exception: ${error.message}`;
