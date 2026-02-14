@@ -34,10 +34,15 @@ const customModel = (modelName: string) => {
 
 export async function POST(req: Request) {
     const time = new Date().toISOString();
-    const logFile = path.join(process.cwd(), 'server-debug.log');
+    const logFile = path.join(process.cwd(), 'debug-memory.log');
     const log = (msg: string) => {
-        // fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${msg}\n`); // Disabled for production
-        console.log(msg);
+        try {
+            const entry = `[${new Date().toISOString()}] ${msg}\n`;
+            fs.appendFileSync(logFile, entry);
+            console.log(msg);
+        } catch (e) {
+            console.error('Logging failed', e);
+        }
     };
 
     try {
@@ -98,7 +103,7 @@ export async function POST(req: Request) {
 
         for (const modelName of modelQueue) {
             try {
-                const { createClient } = await import('../../../lib/supabase-server');
+                const { createClient } = await import('@/lib/supabase-server');
                 const supabaseClient = await createClient();
 
                 // Move options to a variable to bypass TS error on maxSteps
@@ -107,7 +112,7 @@ export async function POST(req: Request) {
                     system: basePrompt,
                     messages,
                     maxSteps: 5,
-                    tools: (await import('../../../lib/tools')).getTools(userId),
+                    tools: (await import('@/lib/tools')).getTools(userId),
                     onChunk(event: any) {
                         if (event.chunk.type === 'text-delta') {
                             const text = (event.chunk as any).text || '';

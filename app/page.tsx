@@ -80,7 +80,7 @@ function ChatContent() {
         if (newChat) {
           activeChatId = newChat.id;
           setCurrentChatId(activeChatId);
-          window.history.pushState({}, '', `?id=${activeChatId}`);
+          router.replace(`/?id=${activeChatId}`, { scroll: false });
         }
       }
 

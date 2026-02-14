@@ -93,7 +93,15 @@ export const getTools = (userId?: string) => {
         }),
         execute: async ({ memories }: { memories: any[] }) => {
             const time = new Date().toISOString();
-            console.log(`[${time}] Tool: updateMemories - AI requested saving ${memories.length} facts. Context UserId: ${userId}`);
+            const logMsg = `Tool: updateMemories | User: ${userId} | Facts: ${memories.length}`;
+            console.log(`[${time}] ${logMsg}`);
+
+            // Log to file for deep debugging
+            try {
+                const fs = await import('fs');
+                const path = await import('path');
+                fs.appendFileSync(path.join(process.cwd(), 'debug-memory.log'), `[${time}] ${logMsg}\n`);
+            } catch (e) { }
 
             try {
                 const { createClient } = await import('@/lib/supabase-server');
@@ -107,13 +115,25 @@ export const getTools = (userId?: string) => {
                 }
 
                 if (!targetUserId) {
-                    console.error(`[${time}] [Memory Tool Fail] No UserId found.`);
+                    const failMsg = `[Memory Tool Fail] No UserId found.`;
+                    console.error(`[${time}] ${failMsg}`);
+                    try {
+                        const fs = await import('fs');
+                        const path = await import('path');
+                        fs.appendFileSync(path.join(process.cwd(), 'debug-memory.log'), `[${time}] ${failMsg}\n`);
+                    } catch (e) { }
                     return { success: false, error: "لم يتم العثور على مستخدم لتخزين الذاكرة" };
                 }
 
                 const { saveMemory } = await import('./memories');
                 for (const m of memories) {
-                    console.log(`[${time}] Saving fact: "${m.content}" for user ${targetUserId}`);
+                    const factMsg = `Saving fact: "${m.content}" for user ${targetUserId}`;
+                    console.log(`[${time}] ${factMsg}`);
+                    try {
+                        const fs = await import('fs');
+                        const path = await import('path');
+                        fs.appendFileSync(path.join(process.cwd(), 'debug-memory.log'), `[${time}] ${factMsg}\n`);
+                    } catch (e) { }
                     await saveMemory(targetUserId, m.content, m.importance, supabase);
                 }
 
@@ -122,7 +142,13 @@ export const getTools = (userId?: string) => {
                     message: `تم تحديث ذاكرة النظام بنجاح. تذكرت المعلومات التالية: ${memories.map(m => m.content).join('، ')}.`
                 };
             } catch (error: any) {
-                console.error(`[${time}] Memory Tool Exception: ${error.message}`);
+                const excMsg = `Memory Tool Exception: ${error.message}`;
+                console.error(`[${time}] ${excMsg}`);
+                try {
+                    const fs = await import('fs');
+                    const path = await import('path');
+                    fs.appendFileSync(path.join(process.cwd(), 'debug-memory.log'), `[${time}] ${excMsg}\n`);
+                } catch (e) { }
                 return { success: false, error: error.message };
             }
         }
