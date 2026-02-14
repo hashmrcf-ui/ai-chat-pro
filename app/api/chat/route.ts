@@ -77,6 +77,21 @@ export async function POST(req: Request) {
         const modelQueue = [targetModel, ...features.ai.models.filter(m => m !== targetModel)];
         // ------------------------------------
 
+        // 1. GET CONTEXT (System Prompt & Memories)
+        const { getSystemPrompt } = await import('../../../lib/config');
+        const { getTopMemories } = await import('../../../lib/memories');
+
+        let basePrompt = await getSystemPrompt();
+
+        // Fetch long-term memories if user is logged in
+        if (userId) {
+            const memories = await getTopMemories(userId);
+            if (memories.length > 0) {
+                const memoryContext = `\n[ذاكرة المستخدم طويلة الأمد]:\n${memories.map((m, i) => `${i + 1}. ${m}`).join('\n')}\nاستخدم هذه الحقائق لتخصيص ردودك وجعلها أكثر ذكاءً وتناسباً مع المستخدم.`;
+                basePrompt += memoryContext;
+            }
+        }
+
         let lastError = null;
 
         for (const modelName of modelQueue) {
@@ -85,6 +100,7 @@ export async function POST(req: Request) {
 
                 const result = streamText({
                     model: customModel(modelName),
+                    system: basePrompt,
                     messages,
                     // Dynamic tools loading based on features config
                     tools: (await import('../../../lib/tools')).getTools(),
