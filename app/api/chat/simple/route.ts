@@ -66,14 +66,12 @@ export async function POST(req: Request) {
     } catch (error) {
         console.error('Chat error:', error);
 
-        const { resolveSafetyError } = await import('@/lib/security');
-        const rawErrorMessage = error instanceof Error ? error.message : 'عذراً، تعذر الحصول على رد من الذكاء الاصطناعي.';
-
-        // Transform technical safety errors into a polite Arabic response
-        const politeMessage = resolveSafetyError(rawErrorMessage);
+        // Return exactly what happened (even if it's a provider block) 
+        // to stay transparent and not interfere with AI's own responses.
+        const errorMessage = error instanceof Error ? error.message : 'عذراً، تعذر الحصول على رد من الذكاء الاصطناعي.';
 
         return Response.json({
-            content: politeMessage,
+            content: errorMessage,
             error: true,
         });
     }
