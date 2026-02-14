@@ -3,6 +3,7 @@ import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { createOpenAI } from '@ai-sdk/openai';
 import { features } from '@/lib/features';
 import { getSystemPrompt } from '@/lib/config';
+import { getTopMemories } from '@/lib/memories';
 import { checkContent, logSecurityEvent } from '@/lib/security';
 import { getActiveModels } from '@/lib/models';
 
@@ -49,12 +50,24 @@ export async function POST(req: Request) {
             }
         }
 
-        // Fetch dynamic system prompt
-        const systemPrompt = await getSystemPrompt();
+        // 1. GET CONTEXT (System Prompt & Memories)
+        let basePrompt = await getSystemPrompt();
+
+        // Fetch long-term memories if user is logged in
+        const memories = await getTopMemories(userId);
+        if (memories.length > 0) {
+            const memoryContext = `\n[ذاكرة المستخدم طويلة الأمد]:\n${memories.map((m, i) => `${i + 1}. ${m}`).join('\n')}\nاستخدم هذه الحقائق لتخصيص ردودك وجعلها أكثر ذكاءً وتناسباً مع المستخدم.`;
+            basePrompt += memoryContext;
+        }
+
+        const systemMessage = {
+            role: 'system',
+            content: basePrompt
+        };
 
         const result = await generateText({
             model: customModel(targetModel),
-            system: systemPrompt, // Use system prompt parameter
+            system: systemMessage.content, // Use system prompt parameter
             messages,
         });
 

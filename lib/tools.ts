@@ -82,5 +82,39 @@ export const getTools = () => {
         }
     } as any);
 
+    // 4. Memory Tool (Learning & Adaptation)
+    tools.updateMemories = tool({
+        description: 'استخدم هذه الأداة لحفظ معلومات هامة أو تفضيلات عن المستخدم لاستخدامها في المحادثات المستقبلية. استخدمها عندما يذكر المستخدم حقائق ثابتة عن نفسه أو عن مشاريعه.',
+        parameters: z.object({
+            memories: z.array(z.object({
+                content: z.string().describe('الحقيقة أو المعلومة التي يجب تذكرها (مثلاً: المستخدم يفضل التصميم الداكن)'),
+                importance: z.number().min(1).max(10).default(5).describe('مدى أهمية المعلومة من 1 إلى 10')
+            })).describe('قائمة الذكريات الجديدة المراد حفظها')
+        }),
+        execute: async ({ memories }: { memories: any[] }) => {
+            const time = new Date().toISOString();
+            console.log(`[${time}] Tool: updateMemories - Saving ${memories.length} memories`);
+
+            try {
+                // Determine user ID from cookies (client-side context would be better but we try to infer from session)
+                const { createClient } = await import('./supabase-server');
+                const supabase = await createClient();
+                const { data: { user } } = await supabase.auth.getUser();
+
+                if (!user) return { success: false, error: "لم يتم العثور على مستخدم لتخزين الذاكرة" };
+
+                const { saveMemory } = await import('./memories');
+                for (const m of memories) {
+                    await saveMemory(user.id, m.content, m.importance);
+                }
+
+                return { success: true, message: "تم تحديث ذاكرة النظام بنجاح." };
+            } catch (error: any) {
+                console.error(`[${time}] Memory Update Failed: ${error.message}`);
+                return { success: false, error: error.message };
+            }
+        }
+    } as any);
+
     return tools;
 };
