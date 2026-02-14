@@ -108,23 +108,23 @@ export async function POST(req: Request) {
                     maxSteps: 5, // Crucial for tools to work correctly
                     // Dynamic tools loading based on features config
                     tools: (await import('../../../lib/tools')).getTools(userId),
-                    onChunk(event) {
+                    onChunk(event: any) {
                         if (event.chunk.type === 'text-delta') {
-                            const text = event.chunk.text || '';
+                            const text = (event.chunk as any).text || '';
                             const preview = text.replace(/\n/g, '\\n').substring(0, 50);
                             log(`[${modelName}] Chunk: "${preview}"`);
                         }
                     },
-                    onFinish(event) {
+                    onFinish(event: any) {
                         const usage = event.usage as any;
-                        const tokens = usage?.completionTokens ?? usage?.outputTokens ?? 'N/A';
+                        const tokens = usage?.completionTokens ?? usage?.outputTokens ?? usage?.totalTokens ?? 'N/A';
                         console.log(`[${time}] [${modelName}] Stream finished. Tokens: ${tokens}. Reason: ${event.finishReason}`);
                     },
-                    onError(error) {
+                    onError(error: any) {
                         const errorObj = error instanceof Error ? { message: error.message, stack: error.stack, name: error.name } : error;
                         log(`[${modelName}] Stream ERROR: ${JSON.stringify(errorObj)}`);
                     },
-                });
+                } as any);
 
                 console.log(`[${time}] Model ${modelName} initialized successfully. Returning stream.`);
                 return result.toTextStreamResponse();

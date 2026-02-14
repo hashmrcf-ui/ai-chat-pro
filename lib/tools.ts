@@ -96,11 +96,11 @@ export const getTools = (userId?: string) => {
             console.log(`[${time}] Tool: updateMemories - Saving ${memories.length} memories`);
 
             try {
-                let targetUserId = userId;
+                const { createClient } = await import('./supabase-server');
+                const supabase = await createClient();
 
+                let targetUserId = userId;
                 if (!targetUserId) {
-                    const { createClient } = await import('./supabase-server');
-                    const supabase = await createClient();
                     const { data: { user } } = await supabase.auth.getUser();
                     targetUserId = user?.id;
                 }
