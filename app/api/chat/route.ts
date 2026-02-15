@@ -86,13 +86,23 @@ export async function POST(req: Request) {
 
         // Mode-Specific Force Instructions
         if (activeMode === 'search') {
-            basePrompt += `\n[CRITICAL]: أنت الآن في وضع "البحث المباشر".
-1. يمنع منعاً باتاً كتابة أي نص مقدمة (مثل: سأبحث لك، أو جارٍ البحث).
-2. يجب أن تبدأ استجابتك فوراً باستدعاء أداة 'searchWeb'.
-3. لا تجب من ذاكرتك أبداً.
-إذا كتبت نصاً قبل الأداة، فإنك تفشل في المهمة.`;
+            basePrompt += `\n[CRITICAL]: أنت الآن في وضع "البحث المباشر". يجب أن تكون الخطوة الأولى والوحيدة هي استدعاء أداة 'searchWeb'. يمنع منعاً باتاً كتابة أي نص تمهيدي.`;
         } else if (activeMode === 'shopping') {
-            basePrompt += `\n[CRITICAL]: أنت الآن في وضع "مساعد المشتريات". ابدأ فوراً باستدعاء أداة 'processOrder' دون أي نص تمهيدي.`;
+            basePrompt += `\n[CRITICAL]: أنت الآن في وضع "مساعد المشتريات". استدعِ 'processOrder' فوراً.`;
+        }
+
+        // --- Message Enhancement for Multi-turn Stability ---
+        const enhancedMessages = [...messages];
+        if (activeMode === 'search') {
+            enhancedMessages.push({
+                role: 'user',
+                content: '[نظام]: ابدأ الآن باستدعاء أداة searchWeb للبحث عن طلب المستخدم أعلاه. لا ترد بنص، فقط استدعِ الأداة.'
+            });
+        } else if (activeMode === 'shopping') {
+            enhancedMessages.push({
+                role: 'user',
+                content: '[نظام]: استدعِ أداة processOrder الآن لتنفيذ الطلب.'
+            });
         }
 
         // Fetch long-term memories if user is logged in
@@ -131,18 +141,18 @@ export async function POST(req: Request) {
                 const result = streamText({
                     model: customModel(modelName),
                     system: basePrompt,
-                    messages,
+                    messages: enhancedMessages,
                     maxSteps: 5,
                     tools,
                     toolChoice,
-                    temperature: (activeMode === 'search' || activeMode === 'shopping') ? 0 : 0.7,
+                    temperature: 0,
                     onStepFinish(event: any) {
-                        const toolCalls = event.toolCalls?.map((tc: any) => tc.toolName).join(', ');
-                        console.log(`[${time}] [${modelName}] STEP FINISHED. Tools: ${toolCalls || 'None'}`);
+                        const tcs = event.toolCalls?.map((tc: any) => tc.toolName).join(', ');
+                        console.log(`[${time}] [${modelName}] Step Finish. Tool calls: ${tcs || 'None'}`);
                     },
                     onFinish(event: any) {
                         const called = event.toolCalls?.map((tc: any) => tc.toolName).join(', ');
-                        if (called) console.log(`[${modelName}] FINAL TOOL CALLS: ${called}`);
+                        if (called) console.log(`[${modelName}] FINAL FINISH: ${called}`);
                     },
                 } as any);
 

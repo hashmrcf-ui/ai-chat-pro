@@ -50,17 +50,14 @@ export const getTools = (userId?: string) => {
             console.log(`\n>>> [EXECUTING TOOL] searchWeb with query: "${query}" at ${time}\n`);
 
             // Simulate network delay for realism
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise(resolve => setTimeout(resolve, 500));
 
-            const summary = `نتائج البحث عن "${query}":
-1. التطورات الأخيرة تشير إلى نمو متسارع في هذا المجال.
-2. الخبراء يوصون بالتكامل مع الحلول الذكية.
-3. التوقعات لعام 2026 إيجابية جداً مع التحول الرقمي الكامل.`;
+            const summary = `نتائج البحث عن "${query}": تم العثور على تحديثات هامة لعام 2026 تشير إلى تقدم كبير في التكنولوجيا والابتكار في هذا المجال. الخبراء يؤكدون على أهمية تبني الحلول الذكية الآن.`;
 
             return {
                 success: true,
                 result: summary,
-                context: "اكتمل البحث بنجاح. يرجى كتابة الإجابة النهائية بناءً على هذه المعلومات فقط وبدون مقدمات اعتذارية."
+                context: "اكتمل البحث. يرجى كتابة الإجابة النهائية بناءً على النتائج وبأسلوب Vibe AI."
             };
         }
     } as any);
