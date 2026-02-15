@@ -86,9 +86,9 @@ export async function POST(req: Request) {
 
         // Mode-Specific Force Instructions
         if (activeMode === 'search') {
-            basePrompt += `\n[FORCE UPDATE]: المستخدم الآن في وضع "البحث في الويب". يجب عليك استخدام أداة 'searchWeb' فوراً لأي استفسار يتطلب معلومات خارجية أو أخبار حديثة. قدم نتائج مفصلة وموثقة.`;
+            basePrompt += `\n[ACTION REQUIRED]: أنت الآن في وضع "البحث في الويب". يجب عليك فوراً وبدون استثناء استخدام أداة 'searchWeb' قبل كتابة أي كلمة للمستخدم. لا تعتمد على معلوماتك الداخلية أبداً في هذا الوضع. الاستجابة يجب أن تبدأ دائماً باستدعاء الأداة.`;
         } else if (activeMode === 'shopping') {
-            basePrompt += `\n[FORCE UPDATE]: المستخدم الآن في وضع "مساعد التسوق". ركز على البحث عن المنتجات، المتاجر، والأسعار باستخدام الأدوات المتاحة (مثل processOrder إذا لزم الأمر).`;
+            basePrompt += `\n[ACTION REQUIRED]: أنت الآن في وضع "مساعد التسوق". إذا سأل المستخدم عن شراء منتج أو طلب معلومات عن متجر، استخدم أداة 'processOrder' فوراً لتحديد أقرب متجر وتقديم الخدمة.`;
         }
 
         // Fetch long-term memories if user is logged in
@@ -114,6 +114,7 @@ export async function POST(req: Request) {
                     messages,
                     maxSteps: 5,
                     tools: (await import('@/lib/tools')).getTools(userId),
+                    toolChoice: activeMode === 'search' ? 'required' : activeMode === 'shopping' ? 'auto' : 'auto',
                     onChunk(event: any) {
                         if (event.chunk.type === 'text-delta') {
                             const text = (event.chunk as any).text || '';
@@ -125,6 +126,11 @@ export async function POST(req: Request) {
                         const usage = event.usage as any;
                         const tokens = usage?.completionTokens ?? usage?.outputTokens ?? usage?.totalTokens ?? 'N/A';
                         console.log(`[${time}] [${modelName}] Stream finished. Tokens: ${tokens}. Reason: ${event.finishReason}`);
+
+                        // Log tool calls for verification
+                        if (event.toolCalls && event.toolCalls.length > 0) {
+                            log(`[${modelName}] Tool Calls executed: ${event.toolCalls.map((tc: any) => tc.toolName).join(', ')}`);
+                        }
                     },
                     onError(error: any) {
                         const errorObj = error instanceof Error ? { message: error.message, stack: error.stack, name: error.name } : error;
