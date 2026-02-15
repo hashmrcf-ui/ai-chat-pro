@@ -86,9 +86,9 @@ export async function POST(req: Request) {
 
         // Mode-Specific Force Instructions
         if (activeMode === 'search') {
-            basePrompt += `\n[IMPORTANT]: أنت الآن في "وضع البحث في الويب". إذا كان استفسار المستخدم يتطلب معلومات حديثة، أخبار، أو بيانات غير متوفرة لديك، استخدم أداة 'searchWeb' فوراً. بعد البحث، قدم إجابة مفصلة بناءً على النتائج.`;
+            basePrompt += `\n[CRITICAL]: أنت الآن في وضع "البحث المباشر". يجب عليك فوراً استدعاء أداة 'searchWeb' للحصول على البيانات الحقيقية. لا تجب من ذاكرتك أبداً. سأقوم بإيقافك إذا لم تستخدم الأداة.`;
         } else if (activeMode === 'shopping') {
-            basePrompt += `\n[IMPORTANT]: أنت الآن في "وضع مساعد التسوق". استخدم أداة 'processOrder' للبحث عن المنتجات أو المتاجر القريبة عند الحاجة.`;
+            basePrompt += `\n[CRITICAL]: أنت الآن في وضع "مساعد المشتريات". أي منتج يذكره المستخدم يجب البحث عنه عبر أداة 'processOrder' فوراً.`;
         }
 
         // Fetch long-term memories if user is logged in
@@ -104,43 +104,36 @@ export async function POST(req: Request) {
 
         for (const modelName of modelQueue) {
             try {
-                const { createClient } = await import('@/lib/supabase-server');
-                const supabaseClient = await createClient();
+                const { getTools } = await import('@/lib/tools');
+                const tools = getTools(userId);
 
-                // Move options to a variable to bypass TS error on maxSteps
-                const streamOptions: any = {
+                // Determine tool choice based on mode
+                let toolChoice: any = 'auto';
+                if (activeMode === 'search') {
+                    toolChoice = { type: 'tool', toolName: 'searchWeb' };
+                } else if (activeMode === 'shopping') {
+                    toolChoice = { type: 'tool', toolName: 'processOrder' };
+                }
+
+                console.log(`[${time}] Model: ${modelName} | Mode: ${activeMode} | ToolChoice: ${JSON.stringify(toolChoice)}`);
+
+                const result = streamText({
                     model: customModel(modelName),
                     system: basePrompt,
                     messages,
                     maxSteps: 5,
-                    tools: (await import('@/lib/tools')).getTools(userId),
-                    toolChoice: 'auto',
-                    onChunk(event: any) {
-                        if (event.chunk.type === 'text-delta') {
-                            const text = (event.chunk as any).text || '';
-                            const preview = text.replace(/\n/g, '\\n').substring(0, 50);
-                            log(`[${modelName}] Chunk: "${preview}"`);
-                        }
-                    },
+                    tools,
+                    toolChoice,
                     onFinish(event: any) {
-                        const usage = event.usage as any;
-                        const tokens = usage?.completionTokens ?? usage?.outputTokens ?? usage?.totalTokens ?? 'N/A';
-                        console.log(`[${time}] [${modelName}] Stream finished. Tokens: ${tokens}. Reason: ${event.finishReason}`);
-
-                        // Log tool calls for verification
-                        if (event.toolCalls && event.toolCalls.length > 0) {
-                            log(`[${modelName}] Tool Calls executed: ${event.toolCalls.map((tc: any) => tc.toolName).join(', ')}`);
-                        }
+                        const called = event.toolCalls?.map((tc: any) => tc.toolName).join(', ');
+                        if (called) log(`[${modelName}] TOOLS CALLED: ${called}`);
                     },
                     onError(error: any) {
                         const errorObj = error instanceof Error ? { message: error.message, stack: error.stack, name: error.name } : error;
                         log(`[${modelName}] Stream ERROR: ${JSON.stringify(errorObj)}`);
                     },
-                };
+                } as any);
 
-                const result = streamText(streamOptions);
-
-                console.log(`[${time}] Model ${modelName} initialized successfully. Returning stream.`);
                 return result.toTextStreamResponse();
 
             } catch (error) {
@@ -156,7 +149,7 @@ export async function POST(req: Request) {
         throw lastError || new Error("All configured models failed to initialize.");
 
     } catch (error) {
-        console.error(`[${time}] FATAL ERROR (All models failed): ${error}`);
+        console.error(`[${time}]FATAL ERROR(All models failed): ${error}`);
 
         const { resolveSafetyError } = await import('../../../lib/security');
         const rawErrorMessage = error instanceof Error ? error.message : String(error);
