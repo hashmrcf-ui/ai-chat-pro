@@ -118,15 +118,15 @@ export async function POST(req: Request) {
 
                 if (activeMode === 'search') {
                     tools = { searchWeb: allTools.searchWeb };
-                    toolChoice = 'required'; // Force search
+                    toolChoice = { type: 'tool', toolName: 'searchWeb' };
                 } else if (activeMode === 'shopping') {
                     tools = { processOrder: allTools.processOrder };
-                    toolChoice = 'required'; // Force shopping logic
+                    toolChoice = { type: 'tool', toolName: 'processOrder' };
                 } else {
                     tools = allTools; // Full intelligence in normal chat
                 }
 
-                console.log(`[${time}] Model: ${modelName} | Mode: ${activeMode} | ToolChoice: ${toolChoice} | Available Tools: ${Object.keys(tools).join(', ')}`);
+                console.log(`[${time}] Model: ${modelName} | Mode: ${activeMode} | ToolChoice: ${JSON.stringify(toolChoice)}`);
 
                 const result = streamText({
                     model: customModel(modelName),
@@ -135,19 +135,17 @@ export async function POST(req: Request) {
                     maxSteps: 5,
                     tools,
                     toolChoice,
+                    temperature: (activeMode === 'search' || activeMode === 'shopping') ? 0 : 0.7,
                     onStepFinish(event: any) {
-                        console.log(`[${time}] [${modelName}] STEP FINISHED. Tool calls: ${event.toolCalls?.length || 0}`);
+                        console.log(`[${time}] [${modelName}] Step Finish. Tools: ${event.toolCalls?.length || 0}`);
                     },
                     onFinish(event: any) {
                         const called = event.toolCalls?.map((tc: any) => tc.toolName).join(', ');
-                        if (called) console.log(`[${modelName}] FINAL FINISH: Tools called: ${called}`);
-                    },
-                    onError(error: any) {
-                        console.error(`[${time}] [${modelName}] STREAM ERROR:`, error);
+                        if (called) console.log(`[${modelName}] FINAL TOOL CALLS: ${called}`);
                     },
                 } as any);
 
-                return result.toTextStreamResponse();
+                return result.toDataStreamResponse();
 
             } catch (error) {
                 const errorMsg = error instanceof Error ? error.message : String(error);

@@ -111,7 +111,7 @@ function ChatContent() {
         throw new Error(errorData.error || 'فشل الاتصال بالخادم');
       }
 
-      // Handle Streaming response
+      // Handle Data Streaming response
       const reader = response.body?.getReader();
       if (!reader) throw new Error('تعذر بدء تدفق البيانات');
 
@@ -119,19 +119,38 @@ function ChatContent() {
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
       const decoder = new TextDecoder();
+      let buffer = '';
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        assistantContent += chunk;
+        buffer += decoder.decode(value, { stream: true });
 
-        // Update the last message (assistant) with the accumulated content
-        setMessages(prev => {
-          const newMsgs = [...prev];
-          newMsgs[newMsgs.length - 1] = { role: 'assistant', content: assistantContent };
-          return newMsgs;
-        });
+        // Parse AI SDK Data Stream Protocol (e.g. 0:"text", 1:{"tool"...})
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep partial line in buffer
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+
+          // Only process text parts (type 0)
+          if (line.startsWith('0:')) {
+            try {
+              // Extract the JSON-stringified content
+              const textPart = JSON.parse(line.substring(2));
+              assistantContent += textPart;
+
+              setMessages(prev => {
+                const newMsgs = [...prev];
+                newMsgs[newMsgs.length - 1] = { role: 'assistant', content: assistantContent };
+                return newMsgs;
+              });
+            } catch (e) {
+              console.warn('Failed to parse stream line:', line);
+            }
+          }
+        }
       }
 
       if (activeChatId) {
