@@ -145,7 +145,7 @@ export async function POST(req: Request) {
                     },
                 } as any);
 
-                return result.toDataStreamResponse();
+                return (result as any).toDataStreamResponse();
 
             } catch (error) {
                 const errorMsg = error instanceof Error ? error.message : String(error);
