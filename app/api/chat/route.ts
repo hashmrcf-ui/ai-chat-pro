@@ -137,7 +137,8 @@ export async function POST(req: Request) {
                     toolChoice,
                     temperature: (activeMode === 'search' || activeMode === 'shopping') ? 0 : 0.7,
                     onStepFinish(event: any) {
-                        console.log(`[${time}] [${modelName}] Step Finish. Tools: ${event.toolCalls?.length || 0}`);
+                        const toolCalls = event.toolCalls?.map((tc: any) => tc.toolName).join(', ');
+                        console.log(`[${time}] [${modelName}] STEP FINISHED. Tools: ${toolCalls || 'None'}`);
                     },
                     onFinish(event: any) {
                         const called = event.toolCalls?.map((tc: any) => tc.toolName).join(', ');
@@ -145,7 +146,7 @@ export async function POST(req: Request) {
                     },
                 } as any);
 
-                return (result as any).toDataStreamResponse();
+                return result.toTextStreamResponse();
 
             } catch (error) {
                 const errorMsg = error instanceof Error ? error.message : String(error);
