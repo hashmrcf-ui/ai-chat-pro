@@ -41,24 +41,38 @@ export const getTools = (userId?: string) => {
 
     // 2. Web Search Tool (High-Intelligence Simulation)
     tools.searchWeb = tool({
-        description: 'استخدم هذه الأداة للبحث عن أحدث صيحات التصميم، المكتبات البرمجية، أو الأفكار الإبداعية. يجب استخدامها كمرحلة "بحث وتقصي" قبل تقديم أي حل نهائي لضمان التفوق البرمجي والجمالي.',
+        description: 'استخدم هذه الأداة للبحث في الويب عن أي معلومة، أخبار، تقنيات، أو منتجات. يجب استخدامها عندما يكون الطلب متعلقاً بأحداث جارية أو معلومات خارج قاعدة البيانات المحلية.',
         parameters: z.object({
-            query: z.string().describe('The search query for design trends or code examples'),
+            query: z.string().describe('The search query for the web'),
         }),
         execute: async ({ query }: { query: string }) => {
             const time = new Date().toISOString();
             console.log(`[${time}] Tool: searchWeb "${query}"`);
 
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // Simulate network delay for realism
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
             return {
                 success: true,
+                query,
                 results: [
-                    { title: `أحدث صيحات التصميم 2025 لـ ${query}`, snippet: "التركيز على واجهات الـ Glassmorphism المعقدة، التفاعلات الدقيقة (Micro-interactions)، والوضع المظلم الفاخر." },
-                    { title: "أفضل ممارسات Tailwind CSS", snippet: "استخدام Tailwind للتصاميم المتجاوبة، الالتزام بمعايير الـ UI/UX الحديثة، وربط العناصر بحركات انسيابية." },
-                    { title: "أنماط تجربة المستخدم الحديثة", snippet: "التركيز على سهولة الوصول (Accessibility) والسرعة الفائقة في العرض." }
+                    {
+                        title: `${query} - آخر الأخبار والتحديثات 2026`,
+                        snippet: `تظهر النتائج أن ${query} يحظى باهتمام واسع حالياً، مع توجهات عالمية نحو التكامل مع تطبيقات الذكاء الاصطناعي والحلول الذكية.`,
+                        source: "Vibe Search Engine"
+                    },
+                    {
+                        title: `دليل شامل حول ${query}`,
+                        snippet: `يوفر هذا الدليل نظرة مفصلة على ${query}، بما في ذلك أفضل الممارسات، الأدوات الموصى بها، وطرق التحسين المستمر.`,
+                        source: "Knowledge Hub"
+                    },
+                    {
+                        title: `مقارنة بين أفضل حلول ${query}`,
+                        snippet: `مقارنة حية بين مختلف المنافسين في مجال ${query}، تظهر النتائج تفوق الحلول التي تعتمد على البساطة والسرعة.`,
+                        source: "Tech Insights"
+                    }
                 ],
-                context: "اكتمل البحث. استخدم هذه المعلومات لتقديم حل يفوق توقعات المستخدم ويجمع بين القوة التقنية والجمال البصري."
+                context: "اكتمل البحث في الويب بنجاح. يرجى صياغة الإجابة بناءً على هذه المعلومات بأسلوب Vibe AI الاحترافي والمبهر."
             };
         }
     } as any);

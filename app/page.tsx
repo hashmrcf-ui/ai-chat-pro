@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent, ChangeEvent, useEffect, Suspense } from 'react';
-import { Send, Loader2, Plus, Mic, Image as ImageIcon } from 'lucide-react';
+import { Send, Loader2, Plus, Mic, Image as ImageIcon, Globe, PenTool, ShoppingBag, UserCheck, Link as LinkIcon, BookOpen, MoreHorizontal, Sparkles } from 'lucide-react';
 import SidebarLayout from '@/components/SidebarLayout';
 import { features } from '@/lib/features';
 import { Logo } from '@/components/Logo';
@@ -27,6 +27,8 @@ function ChatContent() {
   const [isInitializing, setIsInitializing] = useState(true);
   const [selectedModel, setSelectedModel] = useState(features.ai.models[0]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(chatIdFromUrl);
+  const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
+  const [activeMode, setActiveMode] = useState<'chat' | 'shopping' | 'search'>('chat');
 
   const [appFeatures, setAppFeatures] = useState<AppFeatures>({
     voiceEnabled: true,
@@ -213,22 +215,97 @@ function ChatContent() {
         </div>
 
         <div className="p-4 bg-[#1a1a1a] border-t border-[#27272a]">
-          <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-            <div className="relative group">
+          <form onSubmit={handleSubmit} className="max-w-4xl mx-auto relative">
+
+            {/* Floating Add Menu (ChatGPT Style) */}
+            {isAddMenuOpen && (
+              <div className="absolute bottom-full left-0 mb-4 w-72 bg-[#2d2d2d] border border-[#3f3f46] rounded-2xl shadow-2xl overflow-hidden z-20 animate-in fade-in slide-in-from-bottom-2">
+                <div className="p-2 space-y-1">
+                  <div className="px-3 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">الأدوات الذكية</div>
+
+                  <button
+                    type="button"
+                    onClick={() => { setActiveMode('search'); setIsAddMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-xl transition-all ${activeMode === 'search' ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-300 hover:bg-[#383838]'}`}
+                  >
+                    <Globe className="w-4 h-4 text-emerald-400" />
+                    البحث في الويب
+                  </button>
+
+                  <button type="button" className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-300 hover:bg-[#383838] rounded-xl transition-all">
+                    <PenTool className="w-4 h-4 text-amber-400" />
+                    أداة Canvas
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setActiveMode('shopping'); setIsAddMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-xl transition-all ${activeMode === 'shopping' ? 'bg-indigo-500/20 text-indigo-400' : 'text-gray-300 hover:bg-[#383838]'}`}
+                  >
+                    <ShoppingBag className="w-4 h-4 text-indigo-400" />
+                    مساعد التسوق
+                  </button>
+
+                  <div className="h-px bg-[#3f3f46] my-1 mx-2" />
+
+                  <button type="button" className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-300 hover:bg-[#383838] rounded-xl transition-all">
+                    <UserCheck className="w-4 h-4 text-purple-400" />
+                    وضع الوكيل
+                  </button>
+
+                  <button type="button" className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-300 hover:bg-[#383838] rounded-xl transition-all">
+                    <BookOpen className="w-4 h-4 text-blue-400" />
+                    ذاكر وتعلم
+                  </button>
+
+                  <button type="button" className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-500 hover:text-gray-300 transition-all font-bold">
+                    <MoreHorizontal className="w-4 h-4" />
+                    المزيد...
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="relative flex items-center">
+              {/* Add Button */}
+              <div className="absolute left-2 flex items-center gap-2 z-10">
+                <button
+                  type="button"
+                  onClick={() => setIsAddMenuOpen(!isAddMenuOpen)}
+                  className={`h-10 w-10 flex items-center justify-center rounded-xl transition-all ${isAddMenuOpen ? 'bg-[#3f3f46] text-white rotate-45' : 'text-gray-400 hover:text-white hover:bg-[#323235]'}`}
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+
+                {/* Active Mode Chip (User Requested UI) */}
+                {activeMode === 'shopping' && (
+                  <div className="flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 px-3 py-1.5 rounded-xl text-xs font-bold animate-in zoom-in-95 duration-200">
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                    <span>مساعد التسوق</span>
+                    <button
+                      onClick={() => setActiveMode('chat')}
+                      className="ml-1 hover:text-white transition-colors"
+                    >
+                      <Plus className="w-3 h-3 rotate-45" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <input
                 value={input}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
-                placeholder="اكتب رسالتك لـ Vibe AI..."
-                className="w-full bg-[#27272a] border border-[#3f3f46] rounded-2xl pl-5 pr-32 py-4 text-white text-sm outline-none focus:border-indigo-500 transition-all shadow-inner"
+                placeholder={activeMode === 'search' ? 'ابحث في الويب عن أي شيء...' : activeMode === 'shopping' ? 'ابحث عن منتج، متجر، أو ماركة...' : 'اسأل عن أي شيء...'}
+                className={`w-full bg-[#27272a] border border-[#3f3f46] rounded-2xl py-4 text-white text-sm outline-none focus:border-indigo-500 transition-all shadow-inner ${activeMode === 'shopping' ? 'pl-44' : activeMode === 'search' ? 'pl-40' : 'pl-14'} pr-32`}
                 disabled={loading}
               />
+
               <div className="absolute right-2 top-2 flex items-center gap-1">
                 {/* Voice Feature */}
                 {appFeatures.voiceEnabled && (
                   <button
                     type="button"
                     className="h-10 w-10 flex items-center justify-center text-gray-400 hover:text-indigo-400 hover:bg-[#323235] rounded-xl transition-all"
-                    title="Voice Chat (Coming Soon)"
                   >
                     <Mic className="w-5 h-5" />
                   </button>
@@ -239,7 +316,6 @@ function ChatContent() {
                   <button
                     type="button"
                     className="h-10 w-10 flex items-center justify-center text-gray-400 hover:text-pink-400 hover:bg-[#323235] rounded-xl transition-all"
-                    title="Generate Image (Coming Soon)"
                   >
                     <ImageIcon className="w-5 h-5" />
                   </button>
