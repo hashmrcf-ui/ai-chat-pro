@@ -115,28 +115,6 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
-                    {/* Shopping & Discovery Section (Top for visibility) */}
-                    <div className="px-3 mb-6 space-y-1">
-                        <div className="mb-2">
-                            <p className="text-[10px] uppercase font-black text-gray-500 tracking-[0.2em]">التجارة والتبادل</p>
-                        </div>
-
-                        <Link
-                            href="/marketplace"
-                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-400 hover:text-indigo-400 hover:bg-indigo-500/5 rounded-xl transition-all group"
-                        >
-                            <ShoppingBag className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                            <span>قائمة التسوق الموحدة</span>
-                        </Link>
-
-                        <Link
-                            href="/upgrade"
-                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-indigo-400 bg-indigo-500/5 border border-indigo-500/20 hover:bg-indigo-500/10 rounded-xl transition-all group mt-2"
-                        >
-                            <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
-                            <span>أضف متجرك لـ Vibe AI</span>
-                        </Link>
-                    </div>
 
                     <h3 className="px-3 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest border-t border-white/5 pt-6 mt-4">المحادثات الأخيرة</h3>
                     {isLoading ? (

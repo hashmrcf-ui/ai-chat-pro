@@ -49,7 +49,8 @@ function ChatContent() {
       const config = await getAppFeatures();
       setAppFeatures(config);
 
-      if (chatIdFromUrl) {
+      // Only reload if the ID changed to a DIFFERENT one (prevents race condition during new chat creation)
+      if (chatIdFromUrl && chatIdFromUrl !== currentChatId) {
         const history = await getChatMessages(chatIdFromUrl);
         setMessages(history.map(m => ({ role: m.role as any, content: m.content })));
         setCurrentChatId(chatIdFromUrl);
@@ -282,6 +283,19 @@ function ChatContent() {
                   <div className="flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 px-3 py-1.5 rounded-xl text-xs font-bold animate-in zoom-in-95 duration-200">
                     <ShoppingBag className="w-3.5 h-3.5" />
                     <span>مساعد التسوق</span>
+                    <button
+                      onClick={() => setActiveMode('chat')}
+                      className="ml-1 hover:text-white transition-colors"
+                    >
+                      <Plus className="w-3 h-3 rotate-45" />
+                    </button>
+                  </div>
+                )}
+
+                {activeMode === 'search' && (
+                  <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-xl text-xs font-bold animate-in zoom-in-95 duration-200">
+                    <Globe className="w-3.5 h-3.5" />
+                    <span>البحث في الويب</span>
                     <button
                       onClick={() => setActiveMode('chat')}
                       className="ml-1 hover:text-white transition-colors"
