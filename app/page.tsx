@@ -49,6 +49,8 @@ function ChatContent() {
       const config = await getAppFeatures();
       setAppFeatures(config);
 
+      if (loading) return; // Prevent state wipes during active streaming/submission
+
       if (chatIdFromUrl) {
         if (chatIdFromUrl !== currentChatId) {
           const history = await getChatMessages(chatIdFromUrl);

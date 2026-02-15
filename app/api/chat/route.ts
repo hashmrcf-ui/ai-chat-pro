@@ -86,9 +86,13 @@ export async function POST(req: Request) {
 
         // Mode-Specific Force Instructions
         if (activeMode === 'search') {
-            basePrompt += `\n[CRITICAL]: أنت الآن في وضع "البحث المباشر". يجب عليك فوراً استدعاء أداة 'searchWeb' للحصول على البيانات الحقيقية. لا تجب من ذاكرتك أبداً. سأقوم بإيقافك إذا لم تستخدم الأداة.`;
+            basePrompt += `\n[CRITICAL]: أنت الآن في وضع "البحث المباشر".
+1. يمنع منعاً باتاً كتابة أي نص مقدمة (مثل: سأبحث لك، أو جارٍ البحث).
+2. يجب أن تبدأ استجابتك فوراً باستدعاء أداة 'searchWeb'.
+3. لا تجب من ذاكرتك أبداً.
+إذا كتبت نصاً قبل الأداة، فإنك تفشل في المهمة.`;
         } else if (activeMode === 'shopping') {
-            basePrompt += `\n[CRITICAL]: أنت الآن في وضع "مساعد المشتريات". أي منتج يذكره المستخدم يجب البحث عنه عبر أداة 'processOrder' فوراً.`;
+            basePrompt += `\n[CRITICAL]: أنت الآن في وضع "مساعد المشتريات". ابدأ فوراً باستدعاء أداة 'processOrder' دون أي نص تمهيدي.`;
         }
 
         // Fetch long-term memories if user is logged in
@@ -131,9 +135,12 @@ export async function POST(req: Request) {
                     maxSteps: 5,
                     tools,
                     toolChoice,
+                    onStepFinish(event: any) {
+                        console.log(`[${time}] [${modelName}] STEP FINISHED. Tool calls: ${event.toolCalls?.length || 0}`);
+                    },
                     onFinish(event: any) {
                         const called = event.toolCalls?.map((tc: any) => tc.toolName).join(', ');
-                        if (called) console.log(`[${modelName}] FINISH: Tools called: ${called}`);
+                        if (called) console.log(`[${modelName}] FINAL FINISH: Tools called: ${called}`);
                     },
                     onError(error: any) {
                         console.error(`[${time}] [${modelName}] STREAM ERROR:`, error);

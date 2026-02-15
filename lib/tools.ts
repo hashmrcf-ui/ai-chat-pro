@@ -50,29 +50,17 @@ export const getTools = (userId?: string) => {
             console.log(`\n>>> [EXECUTING TOOL] searchWeb with query: "${query}" at ${time}\n`);
 
             // Simulate network delay for realism
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            const summary = `نتائج البحث عن "${query}":
+1. التطورات الأخيرة تشير إلى نمو متسارع في هذا المجال.
+2. الخبراء يوصون بالتكامل مع الحلول الذكية.
+3. التوقعات لعام 2026 إيجابية جداً مع التحول الرقمي الكامل.`;
 
             return {
                 success: true,
-                query,
-                results: [
-                    {
-                        title: `${query} - آخر الأخبار والتحديثات 2026`,
-                        snippet: `تظهر النتائج أن ${query} يحظى باهتمام واسع حالياً، مع توجهات عالمية نحو التكامل مع تطبيقات الذكاء الاصطناعي والحلول الذكية.`,
-                        source: "Vibe Search Engine"
-                    },
-                    {
-                        title: `دليل شامل حول ${query}`,
-                        snippet: `يوفر هذا الدليل نظرة مفصلة على ${query}، بما في ذلك أفضل الممارسات، الأدوات الموصى بها، وطرق التحسين المستمر.`,
-                        source: "Knowledge Hub"
-                    },
-                    {
-                        title: `مقارنة بين أفضل حلول ${query}`,
-                        snippet: `مقارنة حية بين مختلف المنافسين في مجال ${query}، تظهر النتائج تفوق الحلول التي تعتمد على البساطة والسرعة.`,
-                        source: "Tech Insights"
-                    }
-                ],
-                context: "اكتمل البحث في الويب بنجاح. يرجى صياغة الإجابة بناءً على هذه المعلومات بأسلوب Vibe AI الاحترافي والمبهر."
+                result: summary,
+                context: "اكتمل البحث بنجاح. يرجى كتابة الإجابة النهائية بناءً على هذه المعلومات فقط وبدون مقدمات اعتذارية."
             };
         }
     } as any);
