@@ -86,9 +86,9 @@ export async function POST(req: Request) {
 
         // Mode-Specific Force Instructions
         if (activeMode === 'search') {
-            basePrompt += `\n[ACTION REQUIRED]: أنت الآن في وضع "البحث في الويب". يجب عليك فوراً وبدون استثناء استخدام أداة 'searchWeb' قبل كتابة أي كلمة للمستخدم. لا تعتمد على معلوماتك الداخلية أبداً في هذا الوضع. الاستجابة يجب أن تبدأ دائماً باستدعاء الأداة.`;
+            basePrompt += `\n[IMPORTANT]: أنت الآن في "وضع البحث في الويب". إذا كان استفسار المستخدم يتطلب معلومات حديثة، أخبار، أو بيانات غير متوفرة لديك، استخدم أداة 'searchWeb' فوراً. بعد البحث، قدم إجابة مفصلة بناءً على النتائج.`;
         } else if (activeMode === 'shopping') {
-            basePrompt += `\n[ACTION REQUIRED]: أنت الآن في وضع "مساعد التسوق". إذا سأل المستخدم عن شراء منتج أو طلب معلومات عن متجر، استخدم أداة 'processOrder' فوراً لتحديد أقرب متجر وتقديم الخدمة.`;
+            basePrompt += `\n[IMPORTANT]: أنت الآن في "وضع مساعد التسوق". استخدم أداة 'processOrder' للبحث عن المنتجات أو المتاجر القريبة عند الحاجة.`;
         }
 
         // Fetch long-term memories if user is logged in
@@ -114,7 +114,7 @@ export async function POST(req: Request) {
                     messages,
                     maxSteps: 5,
                     tools: (await import('@/lib/tools')).getTools(userId),
-                    toolChoice: activeMode === 'search' ? 'required' : activeMode === 'shopping' ? 'auto' : 'auto',
+                    toolChoice: 'auto',
                     onChunk(event: any) {
                         if (event.chunk.type === 'text-delta') {
                             const text = (event.chunk as any).text || '';

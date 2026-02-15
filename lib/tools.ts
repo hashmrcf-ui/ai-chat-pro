@@ -47,7 +47,7 @@ export const getTools = (userId?: string) => {
         }),
         execute: async ({ query }: { query: string }) => {
             const time = new Date().toISOString();
-            console.log(`[${time}] Tool: searchWeb "${query}"`);
+            console.log(`\n>>> [EXECUTING TOOL] searchWeb with query: "${query}" at ${time}\n`);
 
             // Simulate network delay for realism
             await new Promise(resolve => setTimeout(resolve, 2000));
@@ -177,6 +177,7 @@ export const getTools = (userId?: string) => {
         }),
         execute: async ({ productName, isFake }: { productName: string, isFake?: boolean }) => {
             const time = new Date().toISOString();
+            console.log(`\n>>> [EXECUTING TOOL] processOrder for: "${productName}" at ${time}\n`);
             try {
                 const { processShoppingOrder } = await import('./shopping');
                 const result = await processShoppingOrder({ productName, userId: userId || '', isFake });
@@ -193,7 +194,7 @@ export const getTools = (userId?: string) => {
                 console.error(`[${time}] Shopping Tool Fail: ${error.message}`);
                 return { success: false, error: error.message };
             }
-        }
+        },
     } as any);
 
     return tools;
