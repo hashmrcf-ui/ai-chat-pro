@@ -49,11 +49,12 @@ function ChatContent() {
       const config = await getAppFeatures();
       setAppFeatures(config);
 
-      // Only reload if the ID changed to a DIFFERENT one (prevents race condition during new chat creation)
-      if (chatIdFromUrl && chatIdFromUrl !== currentChatId) {
-        const history = await getChatMessages(chatIdFromUrl);
-        setMessages(history.map(m => ({ role: m.role as any, content: m.content })));
-        setCurrentChatId(chatIdFromUrl);
+      if (chatIdFromUrl) {
+        if (chatIdFromUrl !== currentChatId) {
+          const history = await getChatMessages(chatIdFromUrl);
+          setMessages(history.map(m => ({ role: m.role as any, content: m.content })));
+          setCurrentChatId(chatIdFromUrl);
+        }
       } else {
         // Reset state for New Chat
         setMessages([]);
@@ -99,6 +100,7 @@ function ChatContent() {
           messages: [...messages, newMessage],
           model: selectedModel,
           userId: user.id, // Explicitly pass userId for memory tracking
+          activeMode: activeMode,
         }),
       });
 

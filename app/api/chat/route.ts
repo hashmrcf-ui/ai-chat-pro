@@ -48,37 +48,31 @@ export async function POST(req: Request) {
     try {
         log(`POST /api/chat called`);
         log(`API Key Present: ${!!process.env.OPENROUTER_API_KEY}`);
-        const { messages, model, userId } = await req.json(); // Cleaned: extracted userId if sent
+        const { messages, model, userId, activeMode } = await req.json(); // Cleaned: extracted userId if sent
         const lastMessage = messages[messages.length - 1]?.content || '';
 
-        console.log(`[${time}] Received ${messages.length} messages. Model: ${model}. Last: ${lastMessage.substring(0, 50)}...`);
+        console.log(`[${time}] Received ${messages.length} messages. Model: ${model}. Mode: ${activeMode}. Last: ${lastMessage.substring(0, 50)}...`);
 
-        // --- SECURITY CHECK (Silent Logging) ---
+        // ... existing security check ...
         const { checkContent, logSecurityEvent } = await import('../../../lib/security');
         const securityResult = checkContent(lastMessage);
 
         if (securityResult.flagged) {
             console.warn(`[SECURITY ALERT] Flagged content: ${securityResult.violationType}. Logging to admin.`);
-            // Log the event asynchronously
             logSecurityEvent(userId, lastMessage, securityResult);
-            // We do NOT return a 400 error anymore, allowing the AI to handle it.
         }
-        // ----------------------
 
         // --- INTELLIGENCE-AWARE ROUTING ---
         const lastMessageContent = lastMessage;
         const isComplexTask = /code|برمج|صمم|خطط|تحليل|build|design|create|plan|architecture/i.test(lastMessageContent);
 
-        // Ensure requested model is used, but if it's a complex task and no specific model was requested, 
-        // try to prioritize the strongest ones.
         let targetModel = model || features.ai.models[0];
 
         if (isComplexTask && !model) {
             log(`Detected complex task. Prioritizing premium models.`);
-            targetModel = 'anthropic/claude-3.5-sonnet'; // Force elite model for complex tasks if not specified
+            targetModel = 'anthropic/claude-3.5-sonnet';
         }
 
-        // Create a priority list: [RequestedModel/Elite, ...Others]
         const modelQueue = [targetModel, ...features.ai.models.filter(m => m !== targetModel)];
         // ------------------------------------
 
@@ -90,12 +84,18 @@ export async function POST(req: Request) {
         const supabaseClient = await createClient();
         let basePrompt = await getSystemPrompt();
 
+        // Mode-Specific Force Instructions
+        if (activeMode === 'search') {
+            basePrompt += `\n[FORCE UPDATE]: المستخدم الآن في وضع "البحث في الويب". يجب عليك استخدام أداة 'searchWeb' فوراً لأي استفسار يتطلب معلومات خارجية أو أخبار حديثة. قدم نتائج مفصلة وموثقة.`;
+        } else if (activeMode === 'shopping') {
+            basePrompt += `\n[FORCE UPDATE]: المستخدم الآن في وضع "مساعد التسوق". ركز على البحث عن المنتجات، المتاجر، والأسعار باستخدام الأدوات المتاحة (مثل processOrder إذا لزم الأمر).`;
+        }
+
         // Fetch long-term memories if user is logged in
         if (userId) {
             const memories = await getTopMemories(userId, 15, supabaseClient);
-            console.log(`[API] userId: ${userId} | Memories Fetched: ${memories.length}`);
             if (memories.length > 0) {
-                const memoryContext = `\n[ذاكرة المستخدم طويلة الأمد]:\n${memories.map((m, i) => `${i + 1}. ${m}`).join('\n')}\nاستخدم هذه الحقائق لتخصيص ردودك وجعلها أكثر ذكاءً وتناسباً مع المستخدم.`;
+                const memoryContext = `\n[ذاكرة المستخدم طويلة الأمد]:\n${memories.map((m, i) => `${i + 1}. ${m}`).join('\n')}`;
                 basePrompt += memoryContext;
             }
         }
