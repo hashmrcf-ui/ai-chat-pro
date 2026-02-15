@@ -105,17 +105,24 @@ export async function POST(req: Request) {
         for (const modelName of modelQueue) {
             try {
                 const { getTools } = await import('@/lib/tools');
-                const tools = getTools(userId);
+                const allTools = getTools(userId);
 
-                // Determine tool choice based on mode
+                // --- Tool Filtering & Selection ---
+                // We provide only the relevant tool to maximize stability and prevent model confusion
+                let tools: any = {};
                 let toolChoice: any = 'auto';
+
                 if (activeMode === 'search') {
-                    toolChoice = { type: 'tool', toolName: 'searchWeb' };
+                    tools = { searchWeb: allTools.searchWeb };
+                    toolChoice = 'required'; // Force search
                 } else if (activeMode === 'shopping') {
-                    toolChoice = { type: 'tool', toolName: 'processOrder' };
+                    tools = { processOrder: allTools.processOrder };
+                    toolChoice = 'required'; // Force shopping logic
+                } else {
+                    tools = allTools; // Full intelligence in normal chat
                 }
 
-                console.log(`[${time}] Model: ${modelName} | Mode: ${activeMode} | ToolChoice: ${JSON.stringify(toolChoice)}`);
+                console.log(`[${time}] Model: ${modelName} | Mode: ${activeMode} | ToolChoice: ${toolChoice} | Available Tools: ${Object.keys(tools).join(', ')}`);
 
                 const result = streamText({
                     model: customModel(modelName),
@@ -126,11 +133,10 @@ export async function POST(req: Request) {
                     toolChoice,
                     onFinish(event: any) {
                         const called = event.toolCalls?.map((tc: any) => tc.toolName).join(', ');
-                        if (called) log(`[${modelName}] TOOLS CALLED: ${called}`);
+                        if (called) console.log(`[${modelName}] FINISH: Tools called: ${called}`);
                     },
                     onError(error: any) {
-                        const errorObj = error instanceof Error ? { message: error.message, stack: error.stack, name: error.name } : error;
-                        log(`[${modelName}] Stream ERROR: ${JSON.stringify(errorObj)}`);
+                        console.error(`[${time}] [${modelName}] STREAM ERROR:`, error);
                     },
                 } as any);
 
