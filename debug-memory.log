@@ -1,0 +1,60 @@
+[2026-02-15T01:53:33.976Z] POST /api/chat called
+[2026-02-15T01:53:33.993Z] API Key Present: false
+[2026-02-15T02:01:30.914Z] POST /api/chat called
+[2026-02-15T02:01:30.916Z] API Key Present: false
+[2026-02-15T02:04:42.555Z] POST /api/chat called
+[2026-02-15T02:04:42.558Z] API Key Present: false
+[2026-02-15T02:07:30.991Z] POST /api/chat called
+[2026-02-15T02:07:31.005Z] API Key Present: false
+[2026-02-15T02:18:21.398Z] POST /api/chat called
+[2026-02-15T02:18:21.407Z] API Key Present: false
+[2026-02-15T02:24:16.534Z] POST /api/chat called
+[2026-02-15T02:24:16.536Z] API Key Present: true
+[2026-02-15T02:27:49.279Z] POST /api/chat called
+[2026-02-15T02:27:49.282Z] API Key Present: true
+[2026-02-15T02:38:37.947Z] POST /api/chat called
+[2026-02-15T02:38:37.956Z] API Key Present: true
+[2026-02-15T02:43:53.330Z] POST /api/chat called
+[2026-02-15T02:43:53.333Z] API Key Present: true
+[2026-02-15T02:43:54.201Z] Model anthropic/claude-3.5-sonnet FAILED: result.toDataStreamResponse is not a function
+[2026-02-15T02:43:54.220Z] Model openai/gpt-4o FAILED: result.toDataStreamResponse is not a function
+[2026-02-15T02:43:54.236Z] Model google/gemini-pro-1.5 FAILED: result.toDataStreamResponse is not a function
+[2026-02-15T02:43:54.255Z] Model meta-llama/llama-3.3-70b-instruct:free FAILED: result.toDataStreamResponse is not a function
+[2026-02-15T02:43:54.273Z] Model google/gemma-3-27b-it:free FAILED: result.toDataStreamResponse is not a function
+[2026-02-15T02:44:48.028Z] POST /api/chat called
+[2026-02-15T02:44:48.031Z] API Key Present: true
+[2026-02-15T02:44:48.448Z] Model anthropic/claude-3.5-sonnet FAILED: result.toDataStreamResponse is not a function
+[2026-02-15T02:44:48.462Z] Model openai/gpt-4o FAILED: result.toDataStreamResponse is not a function
+[2026-02-15T02:44:48.479Z] Model google/gemini-pro-1.5 FAILED: result.toDataStreamResponse is not a function
+[2026-02-15T02:44:48.496Z] Model meta-llama/llama-3.3-70b-instruct:free FAILED: result.toDataStreamResponse is not a function
+[2026-02-15T02:44:48.514Z] Model google/gemma-3-27b-it:free FAILED: result.toDataStreamResponse is not a function
+[2026-02-15T02:52:12.899Z] POST /api/chat called
+[2026-02-15T02:52:12.908Z] API Key Present: true
+[2026-02-15T02:52:26.071Z] POST /api/chat called
+[2026-02-15T02:52:26.074Z] API Key Present: true
+[2026-02-15T02:59:30.114Z] POST /api/chat called
+[2026-02-15T02:59:30.121Z] API Key Present: true
+[2026-02-15T02:59:39.860Z] POST /api/chat called
+[2026-02-15T02:59:39.864Z] API Key Present: true
+[2026-02-15T03:00:02.942Z] POST /api/chat called
+[2026-02-15T03:00:02.947Z] API Key Present: true
+[2026-02-15T03:00:40.209Z] POST /api/chat called
+[2026-02-15T03:00:40.213Z] API Key Present: true
+[2026-02-15T03:22:56.956Z] POST /api/chat called
+[2026-02-15T03:22:56.966Z] API Key Present: true
+[2026-02-15T03:23:27.429Z] POST /api/chat called
+[2026-02-15T03:23:27.433Z] API Key Present: true
+[2026-02-15T03:23:34.246Z] POST /api/chat called
+[2026-02-15T03:23:34.249Z] API Key Present: true
+[2026-02-15T03:24:00.869Z] POST /api/chat called
+[2026-02-15T03:24:00.875Z] API Key Present: true
+[2026-02-15T03:24:20.748Z] POST /api/chat called
+[2026-02-15T03:24:20.751Z] API Key Present: true
+[2026-02-15T03:24:30.500Z] POST /api/chat called
+[2026-02-15T03:24:30.504Z] API Key Present: true
+[2026-02-15T03:24:52.071Z] POST /api/chat called
+[2026-02-15T03:24:52.074Z] API Key Present: true
+[2026-02-15T03:48:41.877Z] POST /api/chat called
+[2026-02-15T03:48:41.893Z] API Key Present: true
+[2026-02-15T03:48:58.286Z] POST /api/chat called
+[2026-02-15T03:48:58.290Z] API Key Present: true

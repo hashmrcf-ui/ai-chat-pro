@@ -5,16 +5,20 @@ import { z } from 'zod';
 import * as fs from 'fs';
 import * as path from 'path';
 import { features, getModel } from '../../../lib/features';
+import { getTools } from '../../../lib/tools';
+import { getSystemPrompt } from '../../../lib/config';
+import { getTopMemories } from '../../../lib/memories';
+import { createClient } from '../../../lib/supabase-server';
+import { checkContent, logSecurityEvent, resolveSafetyError } from '../../../lib/security';
 
-// Allow streaming responses up to 30 seconds
 // Allow streaming responses up to 5 minutes for complex reasoning/coding tasks
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const openrouter = createOpenRouter({
     apiKey: process.env.OPENROUTER_API_KEY,
     headers: {
         'HTTP-Referer': 'http://localhost:3000',
-        'X-Title': 'AI Chat Pro',
+        'X-Title': 'Vibe AI Pro',
     }
 });
 
@@ -24,165 +28,84 @@ const ollama = createOpenAI({
 });
 
 const customModel = (modelName: string) => {
-    // If model has :free suffix or contains '/', use OpenRouter
-    if (modelName.includes(':free') || modelName.includes('/')) {
+    // If model has :free suffix or contains '/', use OpenRouter (default for cloud models)
+    if (modelName.includes(':free') || modelName.includes('/') || !modelName.includes('llama')) {
         return openrouter(modelName);
     }
-    // Fallback for local models (llama3, etc.)
+    // Fallback for purely local models if configured
     return ollama(modelName);
 };
 
 export async function POST(req: Request) {
     const time = new Date().toISOString();
-    const logFile = path.join(process.cwd(), 'debug-memory.log');
-    const log = (msg: string) => {
-        try {
-            const entry = `[${new Date().toISOString()}] ${msg}\n`;
-            fs.appendFileSync(logFile, entry);
-            console.log(msg);
-        } catch (e) {
-            console.error('Logging failed', e);
-        }
-    };
 
     try {
-        log(`POST /api/chat called`);
-        log(`API Key Present: ${!!process.env.OPENROUTER_API_KEY}`);
-        const { messages, model, userId, activeMode } = await req.json(); // Cleaned: extracted userId if sent
+        const { messages, model, userId, activeMode } = await req.json();
         const lastMessage = messages[messages.length - 1]?.content || '';
 
-        console.log(`[${time}] Received ${messages.length} messages. Model: ${model}. Mode: ${activeMode}. Last: ${lastMessage.substring(0, 50)}...`);
+        console.log(`[${time}] Request: ${activeMode} | Model: ${model || 'Default'} | MsgLen: ${lastMessage.length}`);
 
-        // ... existing security check ...
-        const { checkContent, logSecurityEvent } = await import('../../../lib/security');
+        // 1. Security Check
         const securityResult = checkContent(lastMessage);
-
         if (securityResult.flagged) {
-            console.warn(`[SECURITY ALERT] Flagged content: ${securityResult.violationType}. Logging to admin.`);
+            console.warn(`[SECURITY] Flagged: ${securityResult.violationType}`);
             logSecurityEvent(userId, lastMessage, securityResult);
+            // We can choose to block or just log. For now, we proceed but log it.
         }
 
-        // --- INTELLIGENCE-AWARE ROUTING ---
-        const lastMessageContent = lastMessage;
-        const isComplexTask = /code|برمج|صمم|خطط|تحليل|build|design|create|plan|architecture/i.test(lastMessageContent);
-
-        let targetModel = model || features.ai.models[0];
-
-        if (isComplexTask && !model) {
-            log(`Detected complex task. Prioritizing premium models.`);
-            targetModel = 'anthropic/claude-3.5-sonnet';
-        }
-
-        const modelQueue = [targetModel, ...features.ai.models.filter(m => m !== targetModel)];
-        // ------------------------------------
-
-        // 1. GET CONTEXT (System Prompt & Memories)
-        const { getSystemPrompt } = await import('../../../lib/config');
-        const { getTopMemories } = await import('../../../lib/memories');
-        const { createClient } = await import('../../../lib/supabase-server');
-
+        // 2. Context & Memories
         const supabaseClient = await createClient();
         let basePrompt = await getSystemPrompt();
 
-        // Mode-Specific Force Instructions
-        if (activeMode === 'search') {
-            basePrompt += `\n[CRITICAL]: أنت الآن في وضع "البحث المباشر". يجب أن تكون الخطوة الأولى والوحيدة هي استدعاء أداة 'searchWeb'. يمنع منعاً باتاً كتابة أي نص تمهيدي.`;
-        } else if (activeMode === 'shopping') {
-            basePrompt += `\n[CRITICAL]: أنت الآن في وضع "مساعد المشتريات". استدعِ 'processOrder' فوراً.`;
-        }
-
-        // --- Message Enhancement for Multi-turn Stability ---
-        const enhancedMessages = [...messages];
-        if (activeMode === 'search') {
-            enhancedMessages.push({
-                role: 'user',
-                content: '[نظام]: ابدأ الآن باستدعاء أداة searchWeb للبحث عن طلب المستخدم أعلاه. لا ترد بنص، فقط استدعِ الأداة.'
-            });
-        } else if (activeMode === 'shopping') {
-            enhancedMessages.push({
-                role: 'user',
-                content: '[نظام]: استدعِ أداة processOrder الآن لتنفيذ الطلب.'
-            });
-        }
-
-        // Fetch long-term memories if user is logged in
+        // Add User Memories
         if (userId) {
-            const memories = await getTopMemories(userId, 15, supabaseClient);
-            if (memories.length > 0) {
-                const memoryContext = `\n[ذاكرة المستخدم طويلة الأمد]:\n${memories.map((m, i) => `${i + 1}. ${m}`).join('\n')}`;
-                basePrompt += memoryContext;
+            const memories = await getTopMemories(userId, 10, supabaseClient);
+            if (memories?.length > 0) {
+                basePrompt += `\n[Context from Memory]:\n${memories.map(m => `- ${m}`).join('\n')}`;
             }
         }
 
-        let lastError = null;
+        // Mode-Specific Instructions
+        if (activeMode === 'search') {
+            basePrompt += `\n[Instruction]: You have access to real-time web search. Use 'searchWeb' tool when the user asks for current events, news, or specific information not in your training data. IMPORTANT: After using the search tool, you MUST generate a comprehensive response to the user based on the search results. Do NOT stop after the tool call.`;
+        }
 
-        for (const modelName of modelQueue) {
-            try {
-                const { getTools } = await import('@/lib/tools');
-                const allTools = getTools(userId);
+        // 3. Model Selection
+        // Use requested model, or fall back to the first available high-quality model
+        const selectedModel = model || features.ai.models[0];
 
-                // --- Tool Filtering & Selection ---
-                // We provide only the relevant tool to maximize stability and prevent model confusion
-                let tools: any = {};
-                let toolChoice: any = 'auto';
+        // 4. Tools Setup
+        const tools = getTools(userId);
 
-                if (activeMode === 'search') {
-                    tools = { searchWeb: allTools.searchWeb };
-                    toolChoice = { type: 'tool', toolName: 'searchWeb' };
-                } else if (activeMode === 'shopping') {
-                    tools = { processOrder: allTools.processOrder };
-                    toolChoice = { type: 'tool', toolName: 'processOrder' };
-                } else {
-                    tools = allTools; // Full intelligence in normal chat
+        // 5. Execution
+        const result = streamText({
+            model: customModel(selectedModel),
+            system: basePrompt,
+            messages,
+            // @ts-ignore
+            maxSteps: 10, // Allow multi-step reasoning (Search -> Read -> Answer)
+            tools,
+            toolChoice: 'auto',
+            temperature: 0.7, // Balanced creativity
+            onStepFinish({ toolCalls, toolResults }) {
+                if (toolCalls && toolCalls.length > 0) {
+                    console.log(`[${time}] Tool Executed: ${toolCalls.map(t => t.toolName).join(', ')}`);
                 }
+            },
+        });
 
-                console.log(`[${time}] Model: ${modelName} | Mode: ${activeMode} | ToolChoice: ${JSON.stringify(toolChoice)}`);
+        return result.toTextStreamResponse();
 
-                const result = streamText({
-                    model: customModel(modelName),
-                    system: basePrompt,
-                    messages: enhancedMessages,
-                    maxSteps: 5,
-                    tools,
-                    toolChoice,
-                    temperature: 0,
-                    onStepFinish(event: any) {
-                        const tcs = event.toolCalls?.map((tc: any) => tc.toolName).join(', ');
-                        console.log(`[${time}] [${modelName}] Step Finish. Tool calls: ${tcs || 'None'}`);
-                    },
-                    onFinish(event: any) {
-                        const called = event.toolCalls?.map((tc: any) => tc.toolName).join(', ');
-                        if (called) console.log(`[${modelName}] FINAL FINISH: ${called}`);
-                    },
-                } as any);
+    } catch (error: any) {
+        console.error(`[${time}] Server Error:`, error);
 
-                return result.toTextStreamResponse();
-
-            } catch (error) {
-                const errorMsg = error instanceof Error ? error.message : String(error);
-                log(`Model ${modelName} FAILED: ${errorMsg}`);
-                lastError = error;
-                // Continue to next model in loop
-                continue;
-            }
+        // Handle specific errors
+        if (error.message?.includes('Safety')) {
+            return new Response(JSON.stringify({ error: resolveSafetyError(error.message) }), { status: 400 });
         }
 
-        // If loop finishes, all models failed
-        throw lastError || new Error("All configured models failed to initialize.");
-
-    } catch (error) {
-        console.error(`[${time}]FATAL ERROR(All models failed): ${error}`);
-
-        const { resolveSafetyError } = await import('../../../lib/security');
-        const rawErrorMessage = error instanceof Error ? error.message : String(error);
-        const politeMessage = resolveSafetyError(rawErrorMessage);
-
-        if (politeMessage !== rawErrorMessage) {
-            // It was a safety block
-            return new Response(JSON.stringify({ error: politeMessage }), { status: 400 });
-        }
-
-        return new Response(JSON.stringify({ error: 'System Overload: All AI models are currently unavailable. Please try again later.' }), { status: 503 });
+        return new Response(JSON.stringify({
+            error: 'System is currently busy or experiencing high traffic. Please try again in a moment.'
+        }), { status: 503 });
     }
 }
-"// force update" 
