@@ -2,15 +2,19 @@
 import { tool } from 'ai';
 import { z } from 'zod';
 
-export const getTools = () => ({
+export const getTools = () => tools;
+
+export const tools = {
     searchShopping: tool({
         description: 'Find products, prices, and shopping deals in Saudi Arabia.',
         parameters: z.object({
             query: z.string().describe('Product name or category to search for'),
             country: z.string().optional().describe('Country code (default: sa)'),
         }),
-        execute: async ({ query, country = 'sa' }) => {
-            console.log(`[MOCK MODE] Searching for: ${query}`);
+        execute: async ({ query, country }: { query: string; country?: string }) => {
+            // Apply default country if not provided
+            const effectiveCountry = country || 'sa';
+            console.log(`[MOCK MODE] Searching for: ${query} in ${effectiveCountry}`);
 
             // --- MOCK DATA FOR DEBUGGING ---
             return {
@@ -36,14 +40,6 @@ export const getTools = () => ({
                     }
                 ]
             };
-
-            /* REAL IMPLEMENTATION (DISABLED):
-            const apiKey = process.env.SERPER_API_KEY || process.env.SERPAPI_API_KEY;
-            // ... (Your previous code would be here)
-            */
         },
     }),
-
-    // Placeholder for vision tool (commented out for now)
-    // analyzeImage: ...
-});
+};
