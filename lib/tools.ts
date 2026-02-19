@@ -2,44 +2,40 @@
 import { tool } from 'ai';
 import { z } from 'zod';
 
-export const getTools = () => tools;
+// Define schema externally for better inference
+const searchSchema = z.object({
+    query: z.string().describe('Product name or category to search for'),
+    country: z.string().optional().describe('Country code (default: sa)'),
+});
 
-export const tools = {
+type SearchArgs = z.infer<typeof searchSchema>;
+
+const toolsMap = {
     searchShopping: tool({
         description: 'Find products, prices, and shopping deals in Saudi Arabia.',
-        parameters: z.object({
-            query: z.string().describe('Product name or category to search for'),
-            country: z.string().optional().describe('Country code (default: sa)'),
-        }),
-        execute: async ({ query, country }: { query: string; country?: string }) => {
-            // Apply default country if not provided
-            const effectiveCountry = country || 'sa';
-            console.log(`[MOCK MODE] Searching for: ${query} in ${effectiveCountry}`);
+        parameters: searchSchema,
+        execute: async (rawArgs: unknown) => {
+            const args = rawArgs as SearchArgs;
+            const effectiveCountry = args.country || 'sa';
+            console.log(`[MOCK MODE] Searching for: ${args.query} in ${effectiveCountry}`);
 
-            // --- MOCK DATA FOR DEBUGGING ---
             return {
                 source: 'Mocked SerpApi Debugger',
                 shopping_results: [
                     {
-                        title: `MOCK RESULT: ${query}`,
+                        title: `MOCK RESULT: ${args.query}`,
                         price: "SAR 1,234.00",
                         source: "Debug Store",
                         link: "https://google.com",
                         thumbnail: "https://via.placeholder.com/150",
                         rating: 5.0,
                         reviews: 999
-                    },
-                    {
-                        title: "iPhone 17 Pro Max (Virtual)",
-                        price: "SAR 5,500.00",
-                        source: "Virtual Shop",
-                        link: "https://apple.com",
-                        thumbnail: "https://via.placeholder.com/150",
-                        rating: 4.8,
-                        reviews: 120
                     }
                 ]
             };
         },
     }),
 };
+
+export const getTools = () => toolsMap;
+export const tools = toolsMap;
