@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>03 - الحل التقني الشامل | Vibe AI</title>
+    <style>
+        /* Reusing Premium Styles */
+        body {
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #ffffff;
+            padding: 60px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .header-top {
+            border-bottom: 2px solid #0f172a;
+            padding-bottom: 30px;
+            margin-bottom: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-placeholder {
+            width: 130px;
+            height: 130px;
+            display: block;
+            border-radius: 35px;
+            overflow: hidden;
+        }
+
+        .brand-name {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #0f172a;
+            line-height: 1;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: #1e293b;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            color: #334155;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            border-right: 5px solid #2563eb;
+            padding-right: 15px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            border-color: #cbd5e1;
+        }
+
+        .feature-title {
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 10px;
+            display: block;
+            font-size: 1.1rem;
+        }
+
+        .feature-desc {
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .segment-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #e0f2fe;
+            color: #0369a1;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .enterprise-box {
+            background: #1e293b;
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 40px;
+        }
+
+        .enterprise-title {
+            color: #38bdf8;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+
+        .roadmap-step {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            background: #2563eb;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-top">
+            <div class="logo-section" style="display: flex; align-items: center; gap: 25px;">
+                <img src="https://res.cloudinary.com/djeoasxqr/image/upload/v1771282141/media__1771105768347_v66xkp.png"
+                    alt="شعار Vibe AI" class="logo-placeholder" style="object-fit: contain; border: none;">
+                <div class="brand-name">Vibe AI</div>
+            </div>
+        </div>
+
+        <h1>03 – النظام البيئي الشامل (The Vibe Ecosystem)</h1>
+
+        <p style="font-size: 1.2rem; color: #475569; margin-bottom: 40px;">
+            نظام متكامل يدمج الذكاء اللغوي (Local NLP) مع أدوات الأتمتة لخدمة 5 شرائح رئيسية (الشركات، رواد الأعمال،
+            الطلاب، المبرمجين، المبدعين).
+        </p>
+
+        <!-- 1. The Power Agents -->
+        <h2>1. جيش الوكلاء الأذكياء (Smart Agents)</h2>
+        <div class="feature-grid">
+
+            <div class="feature-card" style="border-right: 4px solid #16a34a;">
+                <span class="segment-badge">للمتسوقين</span>
+                <span class="feature-title">🛍️ وكيل التسوق الذكي (Shopping Agent)</span>
+                <p class="feature-desc">عند طلب أي سلعة، يقوم الوكيل بالبحث الفوري لتوفير: <strong>أفضل سعر</strong>،
+                    <strong>أفضل جودة</strong>، <strong>أفضل خدمة</strong>، و<strong>أقرب مكان</strong> لك حسب موقعك
+                    الجغرافي.</p>
+            </div>
+
+            <div class="feature-card" style="border-right: 4px solid #ea580c;">
+                <span class="segment-badge">للتجار (B2B)</span>
+                <span class="feature-title">📢 وكيل التسويق (Marketing Agent)</span>
+                <p class="feature-desc">ميزة استراتيجية تتيح للمتاجر إضافة منتجاتها لقاعدة بياناتنا، مما يمنحها
+                    <strong>أولوية الظهور</strong> في نتائج بحث المستخدمين، مع إدارة كاملة للحملات.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="segment-badge">تقني</span>
+                <span class="feature-title">🌐 صانع المواقع (Web Builder)</span>
+                <p class="feature-desc">تحويل الفكرة النصية إلى موقع إلكتروني كامل (يدعم العربية RTL) جاهز للنشر فوراً.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="segment-badge">إبداعي</span>
+                <span class="feature-title">🎵 ستوديو الفن (Music & Voice)</span>
+                <p class="feature-desc">توليد الموسيقى الخلفية، والتعليق الصوتي (Voiceover) بلهجات خليجية ومصرية واقعية،
+                    تخدم صناع المحتوى والمعلمين.</p>
+            </div>
+        </div>
+
+        <!-- 2. Targeted Solutions -->
+        <h2>2. حلول مخصصة للقطاعات</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <span class="feature-title">🎓 للطلاب والمعلمين</span>
+                <p class="feature-desc">شرح المناهج، إنشاء خطط دراسية، وتلخيص الكتب والمراجع المعقدة بضغطة زر.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-title">💻 للمبرمجين</span>
+                <p class="feature-desc">توليد الأكواد البرمجية، اكتشاف الأخطاء، والمساعدة في بناء الأنظمة المعقدة.</p>
+            </div>
+        </div>
+
+        <!-- 3. Enterprise Power -->
+        <div class="enterprise-box">
+            <div class="enterprise-title">🚀 Vibe Enterprise: قوة الشركات</div>
+
+            <div style="margin-bottom: 20px;">
+                <span style="font-weight: bold; color: #e0f2fe; display: block; margin-bottom: 5px;">📊 تحليل البيانات
+                    العميق (Deep Analysis)</span>
+                <p style="color: #94a3b8; font-size: 0.9rem;">ارفع ملفات الشركة (Excel, PDF) واحصل على رؤى استراتيجية
+                    فورية حول المبيعات والأداء.</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <span style="font-weight: bold; color: #e0f2fe; display: block; margin-bottom: 5px;">🔄 أتمتة سير العمل
+                    (Workflow Automation)</span>
+                <p style="color: #94a3b8; font-size: 0.9rem;">ربط المنصة بتطبيقاتك اليومية (Slack, Telegram, Gmail).
+                    مثال: "لخص إيميلات Gmail المهمة وأرسلها لمدير المشروع على Slack".</p>
+            </div>
+
+            <div>
+                <span style="font-weight: bold; color: #e0f2fe; display: block; margin-bottom: 5px;">👁️ تتبع الأعمال
+                    (Business Tracking)</span>
+                <p style="color: #94a3b8; font-size: 0.9rem;">نظام متابعة دقيق لمدراء الفرق لتتبع الإنتاجية وسير العمل.
+                </p>
+            </div>
+        </div>
+
+        <!-- 4. Development Roadmap -->
+        <h2>4. خارطة طريق النموذج المحلي (Local LLM)</h2>
+        <p style="margin-bottom: 20px;">كيف سنبني السيادة الرقمية؟</p>
+
+        <div class="roadmap-step">
+            <div class="step-num">1</div>
+            <div>
+                <strong>تجميع البيانات (Data Collection)</strong>
+                <p style="font-size: 0.9rem; color: #475569;">جمع 500 مليون وثيقة عربية (كتب، أنظمة تجارية، بيانات متاجر
+                    ومواقع جغرافية).</p>
+            </div>
+        </div>
+        <div class="roadmap-step">
+            <div class="step-num">2</div>
+            <div>
+                <strong>التدريب المتخصص (Fine-tuning)</strong>
+                <p style="font-size: 0.9rem; color: #475569;">تخصيص النموذج ليفهم "نية الشراء" و"اللهجات" بدقة تفوق
+                    النماذج العالمية.</p>
+            </div>
+        </div>
+        <div class="roadmap-step">
+            <div class="step-num">3</div>
+            <div>
+                <strong>الربط الشبكي (Live Integration)</strong>
+                <p style="font-size: 0.9rem; color: #475569;">ربط النموذج بواجهات برمجة (APIs) المتاجر المحلية وخدمات
+                    التوصيل في الخليج.</p>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getTopMemories } from '@/lib/memories';
-import { Brain, RefreshCw, Trash2, Plus } from 'lucide-react';
+import { getMemoriesAction, addMemoryAction } from '@/app/actions/memories'; // Use Action
+import { Brain, RefreshCw, Trash2, Plus, Loader2 } from 'lucide-react';
 
 export default function MemorySidebar({ userId }: { userId: string }) {
     const [memories, setMemories] = useState<string[]>([]);
@@ -13,8 +13,7 @@ export default function MemorySidebar({ userId }: { userId: string }) {
         if (!userId) return;
         setLoading(true);
         try {
-            // Using a limit of 5 for Sidebar display
-            const data = await getTopMemories(userId, 5);
+            const data = await getMemoriesAction(userId);
             setMemories(data);
         } catch (e) {
             console.error('Failed to load memories', e);
@@ -27,11 +26,13 @@ export default function MemorySidebar({ userId }: { userId: string }) {
         if (!newFact.trim() || !userId) return;
         setIsSaving(true);
         try {
-            const { saveMemory } = await import('@/lib/memories');
-            const success = await saveMemory(userId, newFact.trim(), 5);
+            const success = await addMemoryAction(userId, newFact.trim());
             if (success) {
                 setNewFact('');
                 loadMemories();
+                // Removed toast for now as package missing
+            } else {
+                console.error('Save failed');
             }
         } catch (e) {
             console.error('Manual save failed', e);

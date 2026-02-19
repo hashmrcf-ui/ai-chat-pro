@@ -8,9 +8,12 @@ const inter = Inter({
   display: "swap",
 });
 
-const cairo = Cairo({
+import { IBM_Plex_Sans_Arabic } from "next/font/google";
+
+const ibmPlex = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],
-  variable: "--font-cairo",
+  weight: ['100', '200', '300', '400', '500', '600', '700'],
+  variable: "--font-ibm-plex",
   display: "swap",
 });
 
@@ -25,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${cairo.variable}`}>
+    <html lang="en" className={`${inter.variable} ${ibmPlex.variable}`}>
       <body className="antialiased font-sans">
         {children}
       </body>

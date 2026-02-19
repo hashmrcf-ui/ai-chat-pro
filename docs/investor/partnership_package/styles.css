@@ -1,0 +1,150 @@
+/* Vibe AI - Strategic Partnership Document Styles */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
+:root {
+    --primary-color: #0f172a;   /* Slate 900 - Dark Navy */
+    --secondary-color: #334155; /* Slate 700 - Dark Grey */
+    --accent-color: #2563eb;    /* Royal Blue - For links/highlights only */
+    --text-color: #1e293b;      /* Slate 800 - Main Text */
+    --light-bg: #f8fafc;        /* Slate 50 - Background */
+    --border-color: #cbd5e1;    /* Slate 300 - Borders */
+}
+
+body {
+    font-family: 'Cairo', sans-serif;
+    color: var(--text-color);
+    background-color: var(--light-bg);
+    line-height: 1.8;
+    margin: 0;
+    padding: 40px;
+    direction: rtl;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+header {
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 20px;
+    margin-bottom: 40px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 1.8rem;
+    color: var(--secondary-color);
+    border-right: 4px solid var(--primary-color);
+    padding-right: 15px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+h3 {
+    font-size: 1.4rem;
+    color: var(--secondary-color);
+    font-weight: 700;
+    margin-top: 30px;
+}
+
+p {
+    margin-bottom: 15px;
+    text-align: justify;
+}
+
+ul, ol {
+    margin-bottom: 20px;
+    padding-right: 20px;
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+.document-meta {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 5px;
+}
+
+.problem-solution-box {
+    border: 1px solid var(--border-color);
+    background: white;
+    padding: 25px;
+    margin: 30px 0;
+    border-radius: 4px; /* Minimal radius */
+}
+
+.problem-header {
+    font-weight: 700;
+    color: #b91c1c; /* Dark Red for Problem */
+    margin-bottom: 10px;
+    display: block;
+}
+
+.solution-header {
+    font-weight: 700;
+    color: #15803d; /* Dark Green for Solution */
+    margin-bottom: 10px;
+    display: block;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--border-color);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 30px 0;
+    background: white;
+}
+
+th, td {
+    border: 1px solid var(--border-color);
+    padding: 12px;
+    text-align: right;
+}
+
+th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.nav-links {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+@media print {
+    body {
+        background: white;
+        padding: 0;
+        max-width: 100%;
+    }
+    .nav-links {
+        display: none;
+    }
+    a {
+        text-decoration: none;
+        color: black;
+    }
+}

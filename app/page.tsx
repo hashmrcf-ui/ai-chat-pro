@@ -10,9 +10,21 @@ import { getChatMessages, createChat, saveMessage } from '@/lib/db';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getAppFeatures, AppFeatures } from '@/lib/config';
 
+import { FilterQuestion, ProductShowcase, SearchProgress } from '@/components/shopping/ShoppingComponents';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+
 interface Message {
+  id?: string;
   role: 'user' | 'assistant';
   content: string;
+  toolInvocations?: Array<{
+    toolName: string;
+    toolCallId: string;
+    args: any;
+    result?: any;
+  }>;
 }
 
 function ChatContent() {
@@ -29,6 +41,8 @@ function ChatContent() {
   const [currentChatId, setCurrentChatId] = useState<string | null>(chatIdFromUrl);
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
   const [activeMode, setActiveMode] = useState<'chat' | 'shopping' | 'search'>('chat');
+  const [showDebug, setShowDebug] = useState(true);
+  const [rawLogs, setRawLogs] = useState<string[]>([]);
 
   const [appFeatures, setAppFeatures] = useState<AppFeatures>({
     voiceEnabled: true,
@@ -68,12 +82,17 @@ function ChatContent() {
     init();
   }, [router, chatIdFromUrl]);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || loading || !user) return;
+  const handleSubmit = async (e?: FormEvent, specificContent?: string) => {
+    if (e) e.preventDefault();
 
-    const userContent = input.trim();
-    const newMessage: Message = { role: 'user', content: userContent };
+    // Auto-submit support
+    const contentToSend = specificContent || input.trim();
+    if (!contentToSend || loading || !user) return;
+
+    // Build the message object
+    const newMessage: Message = { role: 'user', content: contentToSend };
+
+    // Optimistic UI update
     setMessages(prev => [...prev, newMessage]);
     setInput('');
     setLoading(true);
@@ -82,7 +101,7 @@ function ChatContent() {
       let activeChatId = currentChatId;
 
       if (!activeChatId) {
-        const newChat = await createChat(user.id, userContent.substring(0, 30) + '...');
+        const newChat = await createChat(user.id, contentToSend.substring(0, 30) + '...');
         if (newChat) {
           activeChatId = newChat.id;
           setCurrentChatId(activeChatId);
@@ -91,17 +110,17 @@ function ChatContent() {
       }
 
       if (activeChatId) {
-        await saveMessage(activeChatId, 'user', userContent);
+        await saveMessage(activeChatId, 'user', contentToSend);
       }
 
-      // Switch to /api/chat (streaming) for full tool support (like memory)
+      // API Call
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [...messages, newMessage],
           model: selectedModel,
-          userId: user.id, // Explicitly pass userId for memory tracking
+          userId: user.id,
           activeMode: activeMode,
         }),
       });
@@ -119,14 +138,59 @@ function ChatContent() {
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
       const decoder = new TextDecoder();
+      let buffer = '';
+
+      const processLine = (line: string) => {
+        if (line.trim() === '') return;
+
+        // Check for Vercel AI SDK Protocol (0:"content")
+        if (line.startsWith('0:') && line.length > 2) {
+          const rawContent = line.slice(2);
+          if (rawContent.startsWith('"') && rawContent.endsWith('"')) {
+            try {
+              const content = JSON.parse(rawContent);
+              assistantContent += content;
+            } catch (e) {
+              assistantContent += rawContent;
+            }
+          } else {
+            assistantContent += rawContent;
+          }
+        }
+        // Check for other protocol messages (skip)
+        else if (line.match(/^\d+:/)) {
+          return;
+        }
+        // Fallback: Raw Text
+        else {
+          assistantContent += line;
+        }
+      };
+
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        assistantContent += chunk;
+        if (done) {
+          // Process any remaining buffer
+          if (buffer.trim()) {
+            processLine(buffer);
+          }
+          break;
+        }
 
-        // Atomic UI update to ensure smooth growth of the text bubble
+        buffer += decoder.decode(value, { stream: true });
+
+        // DEBUG LOGGING
+        setRawLogs(prev => [...prev.slice(-20), `Chunk: ${decoder.decode(value)}`]);
+
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          processLine(line);
+        }
+
+        // Atomic UI update
         setMessages(prev => {
           const newMsgs = [...prev];
           if (newMsgs.length > 0) {
@@ -175,6 +239,13 @@ function ChatContent() {
             )}
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowDebug(!showDebug)}
+              className={`p-2 rounded-lg transition-colors ${showDebug ? 'bg-red-500/20 text-red-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+              title="Show Debug Logs"
+            >
+              🐞
+            </button>
             <select
               value={selectedModel}
               onChange={(e) => setSelectedModel(e.target.value)}
@@ -201,14 +272,186 @@ function ChatContent() {
               </div>
             </div>
           ) : (
-            <div className="space-y-6 max-w-4xl mx-auto">
-              {messages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-[#27272a] text-gray-200 rounded-tl-none border border-[#3f3f46]'}`}>
-                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+            <div className="space-y-12 max-w-6xl mx-auto px-6 md:px-12 pb-40">
+              {messages.map((msg, i) => {
+                // Feature: Single Box Flow - Hide user's auto-responses
+                if (msg.role === 'user' && msg.content.startsWith('[Selected Option]:')) return null;
+
+                const isUser = msg.role === 'user';
+
+                return (
+                  <div key={i} className={`flex flex-col group ${isUser ? 'items-end' : 'items-start'}`}>
+
+                    {/* Role Label / Icon (Optional but nice for context) */}
+                    <div className="flex items-center gap-3 mb-2 px-1 opacity-70">
+                      {isUser ? (
+                        <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">You</div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Logo iconSize="w-5 h-5" showText={false} />
+                          <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Vibe AI</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div
+                      className={`relative w-full text-base md:text-lg leading-relaxed ${isUser
+                        ? 'bg-[#27272a] text-gray-100 rounded-3xl px-6 py-4 max-w-[85%] border border-[#3f3f46]'
+                        : 'text-gray-200 px-1 py-1 max-w-full font-light text-right'
+                        }`}
+                      dir={!isUser ? "rtl" : "auto"}
+                    >
+                      {/* UI PARSING LOGIC */}
+                      {(() => {
+                        // ULTRA-ROBUST EXTRACTOR v5 (Clean Split & Hide)
+                        // ... (same logic as before, just ensuring context is kept clean)
+                        const extractGenerativeUI = (text: string) => {
+                          // Pre-clean: Remove hidden context tags first
+                          let cleanText = text.replace(/:::INTENT_CONTEXT:::([\s\S]*?):::/g, '').trim();
+
+                          const result: { type: string, data?: any, cleanText: string } = { type: 'text', cleanText: cleanText };
+
+                          // 1. Check for PRODUCTS block
+                          const productsMatch = text.match(/:::UI_PRODUCTS:::([\s\S]*?):::/);
+                          if (productsMatch) {
+                            try {
+                              let jsonContent = productsMatch[1];
+                              jsonContent = jsonContent.replace(/```json/g, '').replace(/```/g, '').trim();
+
+                              const data = JSON.parse(jsonContent);
+                              result.type = 'products';
+                              result.data = data;
+                              result.cleanText = cleanText.replace(productsMatch[0], '').trim();
+                              return result;
+                            } catch (e) { console.error("Product JSON Parse Error", e); }
+                          }
+
+                          // 2. Check for QUESTION block
+                          const questionMatch = text.match(/:::UI_QUESTION:::([\s\S]*?):::/);
+                          if (questionMatch) {
+                            try {
+                              let jsonContent = questionMatch[1];
+                              jsonContent = jsonContent.replace(/```json/g, '').replace(/```/g, '').trim();
+
+                              const data = JSON.parse(jsonContent);
+                              result.type = 'question';
+                              result.data = data;
+                              result.cleanText = cleanText.replace(questionMatch[0], '').trim();
+                              return result;
+                            } catch (e) { }
+                          }
+
+                          // 3. Searching State
+                          if (text.includes(":::UI_SEARCHING:::")) {
+                            result.type = 'searching';
+                            result.cleanText = cleanText.replace(":::UI_SEARCHING:::", "").trim();
+                            return result;
+                          }
+
+                          return result;
+                        };
+
+                        const uiResult = extractGenerativeUI(msg.content);
+
+                        if (uiResult.type !== 'text') {
+                          return (
+                            <>
+                              {/* 1. Render Clean Text Part (Explanation) */}
+                              {uiResult.cleanText && (
+                                <div className={`prose prose-invert prose-lg max-w-none mb-8 ${!isUser && 'text-gray-300 elements-spacing-relaxed'}`}>
+                                  <ReactMarkdown
+                                    remarkPlugins={[remarkGfm]}
+                                    rehypePlugins={[rehypeRaw]}
+                                  >
+                                    {uiResult.cleanText}
+                                  </ReactMarkdown>
+                                </div>
+                              )}
+
+                              {/* 2. Render UI Component */}
+                              {uiResult.type === 'searching' && <SearchProgress />}
+
+                              {uiResult.type === 'question' && (
+                                <div className="flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-500 w-full my-6">
+                                  <FilterQuestion
+                                    question={uiResult.data.question}
+                                    options={uiResult.data.options || []}
+                                    category={uiResult.data.category || 'general'}
+                                    previousSelection={undefined}
+                                    onSelect={(opt) => {
+                                      const choiceMsg = `[Selected Option]: ${opt}`;
+                                      handleSubmit(undefined, choiceMsg);
+                                    }}
+                                  />
+                                </div>
+                              )}
+
+                              {uiResult.type === 'products' && (
+                                <div className="my-8">
+                                  <ProductShowcase
+                                    title={uiResult.data.title || "Recommendations"}
+                                    summary={uiResult.data.summary || ""}
+                                    products={uiResult.data.products || []}
+                                  />
+                                </div>
+                              )}
+                            </>
+                          );
+                        }
+
+                        // Fallback: Render text normally with Markdown support
+                        if (!msg.content) {
+                          return (
+                            <div className="flex items-center gap-3 text-gray-400 italic py-2">
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                              <span className="text-sm">جاري التفكير والكتابة...</span>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className={`prose prose-invert prose-lg max-w-none ${!isUser && 'text-gray-300 elements-spacing-relaxed'}`}>
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              rehypePlugins={[rehypeRaw]}
+                              components={{
+                                // Typography: Clean & Modern (Screenshot Match)
+                                h1: ({ node, ...props }: any) => <h1 {...props} className="text-4xl font-bold mt-12 mb-8 text-white leading-tight tracking-tight" />,
+                                h2: ({ node, ...props }: any) => <h2 {...props} className="text-3xl font-bold mt-12 mb-6 text-indigo-100 border-b border-gray-800/60 pb-4" />,
+                                h3: ({ node, ...props }: any) => <h3 {...props} className="text-2xl font-bold mt-10 mb-4 text-gray-100" />,
+
+                                // Removing custom 'p' to fix hydration error (div inside p)
+                                // Standard prose-p will handle it, or we can use a span if really needed, but removing is safer.
+
+                                // Image with more breathing room (Block level)
+                                img: ({ node, ...props }: any) => (
+                                  <span className="block my-12 relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border border-gray-800/50">
+                                    <img {...props} className="object-cover w-full h-full hover:scale-105 transition-transform duration-700" loading="lazy" />
+                                  </span>
+                                ),
+
+                                // Lists: Clean spacing
+                                ul: ({ node, ...props }: any) => <ul {...props} className="list-disc list-outside mr-6 space-y-3 my-6 text-gray-200 text-lg leading-8 marker:text-gray-500" />,
+                                ol: ({ node, ...props }: any) => <ol {...props} className="list-decimal list-outside mr-6 space-y-3 my-6 text-gray-200 text-lg leading-8 marker:text-gray-500 font-bold" />,
+
+                                // Tags (Code blocks used as chips)
+                                code: ({ node, ...props }: any) => <code {...props} className="bg-gray-800 text-gray-300 text-xs px-3 py-1 rounded-full border border-gray-700 mx-1 font-medium inline-block mb-2 shadow-sm" />,
+
+                                // Special blocks
+                                blockquote: ({ node, ...props }: any) => <blockquote {...props} className="border-r-4 border-gray-600 pr-4 py-2 my-6 text-gray-400 italic text-lg bg-transparent shadow-none" />,
+                                strong: ({ node, ...props }: any) => <strong {...props} className="font-bold text-white" />,
+                                hr: ({ node, ...props }: any) => <hr {...props} className="my-10 border-gray-800" />,
+                              }}
+                            >
+                              {msg.content}
+                            </ReactMarkdown>
+                          </div>
+                        );
+                      })()}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               {loading && (
                 <div className="flex justify-start">
                   <div className="bg-[#27272a] text-gray-400 rounded-2xl px-4 py-3 border border-[#3f3f46] flex items-center gap-2">
@@ -221,7 +464,25 @@ function ChatContent() {
           )}
         </div>
 
-        <div className="p-4 bg-[#1a1a1a] border-t border-[#27272a]">
+        <div className="p-4 bg-[#1a1a1a] border-t border-[#27272a] relative">
+          {/* DEBUG PANEL */}
+          {showDebug && (
+            <div className="absolute bottom-full left-0 right-0 mb-4 mx-6 bg-black/95 border border-green-500/30 rounded-xl p-4 h-48 overflow-y-auto text-xs font-mono text-green-400 shadow-2xl z-50 backdrop-blur-sm">
+              <div className="flex justify-between items-center mb-2 border-b border-gray-800 pb-2 bg-black/50 sticky top-0">
+                <span className="font-bold text-green-400 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                  System Memory Stream
+                </span>
+                <button onClick={() => setRawLogs([])} className="text-gray-500 hover:text-white px-2 hover:bg-white/10 rounded">Clear</button>
+              </div>
+              <div className="space-y-1">
+                {rawLogs.length === 0 ? <span className="text-gray-600 italic">Waiting for system events...</span> : rawLogs.map((log, i) => (
+                  <div key={i} className="border-b border-gray-900/50 py-1 break-all whitespace-pre-wrap font-mono">{log}</div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="max-w-4xl mx-auto relative">
 
             {/* Floating Add Menu (ChatGPT Style) */}
@@ -374,8 +635,12 @@ function ChatPageContent() {
 
 export default function ChatPage() {
   return (
-    <Suspense fallback={null}>
-      <ChatPageContent />
+    <Suspense fallback={
+      <div className="h-screen w-full flex items-center justify-center bg-[#1a1a1a]">
+        <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />
+      </div>
+    }>
+      <ChatContent />
     </Suspense>
   );
 }

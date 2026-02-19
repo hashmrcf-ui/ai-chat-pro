@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>04 - النموذج اللغوي المحلي | Vibe AI</title>
+</head>
+
+<body>
+    <header>
+        <div class="document-meta">رقم الوثيقة: PARTNER-04 | الإصدار: 1.0</div>
+        <h1>04 - النموذج اللغوي المحلي (The Local LLM)</h1>
+    </header>
+
+    <div class="problem-solution-box" style="border-left: 5px solid #2563eb;">
+        <h2 style="margin-top: 0; font-size: 1.4rem; border: none;">لماذا النموذج المحلي؟</h2>
+        <p>الاعتماد الكلي على GPT/Claude يعني أننا مجرد "واجهة" (Wrapper). لكي نسيطر، يجب أن نمتلك "العقل".</p>
+        <p>النموذج المحلي يمنحنا 3 مزايا قاتلة: <strong>الخصوصية (Privacy)</strong>، <strong>المعرفة المحلية (Local
+                Knowledge)</strong>، و<strong>التكلفة المنخفضة (Cost)</strong>.</p>
+    </div>
+
+    <h2>1. أركان النموذج الثلاثة</h2>
+    <div class="problem-solution-box">
+        <span class="problem-header">الركن 1: البيانات السيادية (Data Sovereignty)</span>
+        <p>الشركات الخليجية والحكومات ترفض إرسال بياناتها الحساسة لخوادم OpenAI في أمريكا. </p>
+        <span class="solution-header">الحل:</span>
+        <p>نموذج محلي يعمل على خوادم **داخل المنطقة** (السعودية/الإمارات). هذا يفتح لنا أبواب عقود مليونية مع القطاع
+            الحكومي والبنكي.</p>
+    </div>
+
+    <div class="problem-solution-box">
+        <span class="problem-header">الركن 2: التخصيص الثقافي (Details & Dialects)</span>
+        <p>GPT-4 يتحدث "فصحى مترجمة". لا يفهم النكتة المصرية، ولا الشعر النبطي، ولا الأمثال الشعبية.</p>
+        <span class="solution-header">الحل:</span>
+        <p>تدريب (Fine-tuning) نموذج مفتوح المصدر (مثل Llama 3) على ملايين الوثائق والمحادثات العربية الصميمة، ليصبح
+            "ابن البلد".</p>
+    </div>
+
+    <div class="problem-solution-box">
+        <span class="problem-header">الركن 3: كفاءة التكلفة (Cost Efficiency)</span>
+        <p>استخدام API خارجي يكلف $0.03 لكل 1000 كلمة. مع الملايين، الفاتورة تصبح ضخمة.</p>
+        <span class="solution-header">الحل:</span>
+        <p>تشغيل نموذجنا الخاص على عتادنا (GPUs). التكلفة تنخفض بنسبة <strong>70%</strong> على المدى الطويل.</p>
+    </div>
+
+    <h2>2. ماذا نحتاج لبناء النموذج؟</h2>
+    <p>هذا هو الجزء الذي يحتاج لدعم الشريك (Infrastructure):</p>
+    <table>
+        <tr>
+            <th>المتطلب</th>
+            <th>الهدف</th>
+            <th>التكلفة التقريبية</th>
+        </tr>
+        <tr>
+            <td><strong>Server Cluster (H100 GPUs)</strong></td>
+            <td>تدريب وتشغيل النموذج بسرعة فائقة</td>
+            <td>اشتراك سحابي عالي / شراء عتاد</td>
+        </tr>
+        <tr>
+            <td><strong>Data Engineers (2x)</strong></td>
+            <td>تنظيف البيانات العربية وتجهيزها</td>
+            <td>رواتب شهرية</td>
+        </tr>
+        <tr>
+            <td><strong>ML Ops Engineer (1x)</strong></td>
+            <td>إدارة البنية التحتية للنموذج</td>
+            <td>راتب شهري</td>
+        </tr>
+    </table>
+
+    <h2>3. القيمة المضافة للشراكة</h2>
+    <p>الشريك الذي يوفر هذه البنية التحتية، سيمتلك حصة في <strong>أذكى نموذج لغوي عربي</strong>، وهو أصل رقمي لا يقدر
+        بثمن (Assets).</p>
+
+    <div class="nav-links">
+        <a href="03_technical_solutions.html">&larr; السابق: 03 - الحلول التقنية الشاملة</a>
+        <a href="05_business_sustainability.html">التالي: 05 - نموذج العمل والاستدامة &rarr;</a>
+    </div>
+</body>
+
+</html>

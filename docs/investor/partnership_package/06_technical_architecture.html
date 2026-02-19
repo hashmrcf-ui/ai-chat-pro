@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>06 - البنية التقنية | Vibe AI</title>
+    <style>
+        /* Reusing Premium Design */
+        body {
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #ffffff;
+            padding: 60px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .header-top {
+            border-bottom: 2px solid #0f172a;
+            padding-bottom: 30px;
+            margin-bottom: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-placeholder {
+            width: 130px;
+            height: 130px;
+            display: block;
+            border-radius: 35px;
+            overflow: hidden;
+        }
+
+        .brand-name {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #0f172a;
+            line-height: 1;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: #1e293b;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 20px;
+        }
+
+        .tech-section {
+            padding: 25px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            background: #fff;
+            transition: transform 0.2s;
+        }
+
+        .tech-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .tech-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+        }
+
+        .tech-icon {
+            font-size: 1.8rem;
+            background: #f1f5f9;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+
+        .tech-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #334155;
+        }
+
+        .tech-content {
+            color: #475569;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .tech-list {
+            margin: 10px 0;
+            padding-right: 20px;
+        }
+
+        .tech-list li {
+            margin-bottom: 8px;
+            color: #334155;
+            font-weight: 500;
+        }
+
+        .strategic-advantage {
+            background: #0f172a;
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .strategic-advantage::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: #2563eb;
+        }
+
+        .highlight-box {
+            background: #f0f9ff;
+            border-right: 4px solid #0ea5e9;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #0369a1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-top">
+            <div class="logo-section" style="display: flex; align-items: center; gap: 25px;">
+                <img src="https://res.cloudinary.com/djeoasxqr/image/upload/v1771282141/media__1771105768347_v66xkp.png"
+                    alt="شعار Vibe AI" class="logo-placeholder" style="object-fit: contain; border: none;">
+                <div class="brand-name">Vibe AI</div>
+            </div>
+        </div>
+
+        <h1>06 – البنية التقنية (The Technical Foundation)</h1>
+        <p style="font-size: 1.1rem; color: #475569; margin-bottom: 40px; line-height: 1.6;">
+            تم تصميم <strong>Vibe AI</strong> كبنية تشغيلية قابلة للنمو، وليس مجرد تطبيق يعتمد على واجهات APIs. الهدف هو
+            بناء منصة مستقرة، مرنة، وقادرة على التوسع مع زيادة الاستخدام دون إعادة هندسة كاملة.
+        </p>
+
+        <!-- 1. Core Architecture -->
+        <div class="tech-section">
+            <div class="tech-header">
+                <span class="tech-icon">⚙️</span>
+                <span class="tech-title">1. المحرك الأساسي (Core Architecture)</span>
+            </div>
+            <div class="tech-content">
+                <ul class="tech-list">
+                    <li><strong>Frontend:</strong> مبني باستخدام Next.js لضمان سرعة الأداء وتجربة استخدام سلسة عبر
+                        الأجهزة المختلفة.</li>
+                    <li><strong>Backend:</strong> يعتمد على Python + FastAPI لإدارة منطق الوكلاء الذكيين، التكاملات،
+                        ومعالجة البيانات بكفاءة.</li>
+                    <li><strong>Realtime Layer:</strong> نظام اتصال فوري يتيح تفاعلاً لحظياً في المحادثات وتنفيذ المهام.
+                    </li>
+                </ul>
+                <div class="highlight-box">
+                    هذه البنية تتيح سرعة تطوير عالية واستجابة فورية للمستخدم.
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Hybrid Intelligence -->
+        <div class="tech-section">
+            <div class="tech-header">
+                <span class="tech-icon">🧠</span>
+                <span class="tech-title">2. الذكاء الهجين (Hybrid Intelligence Model)</span>
+            </div>
+            <div class="tech-content">
+                <p>تعتمد المنصة على نموذج ذكاء هجين يجمع بين:</p>
+                <ul class="tech-list">
+                    <li>نماذج سحابية متقدمة للمهام المعقدة.</li>
+                    <li>نماذج محلية مهيأة للمهام السريعة والحساسة.</li>
+                </ul>
+                <p style="margin-top: 10px;">هذا التصميم يحقق توازناً بين: <strong>الجودة، التكلفة التشغيلية، والتحكم في
+                        البيانات.</strong></p>
+                <div class="highlight-box" style="border-color: #16a34a; background: #f0fdf4; color: #15803d;">
+                    مع تطور النموذج المحلي، سيتم تقليل الاعتماد على المعالجة السحابية تدريجياً، مما يرفع هامش الربح
+                    ويزيد الاستقلالية التقنية.
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Data Governance -->
+        <div class="tech-section">
+            <div class="tech-header">
+                <span class="tech-icon">🛡️</span>
+                <span class="tech-title">3. حماية البيانات (Data Governance Roadmap)</span>
+            </div>
+            <div class="tech-content">
+                <div style="display: flex; gap: 20px; margin-top: 10px;">
+                    <div style="flex: 1;">
+                        <strong style="color: #334155; display: block; margin-bottom: 5px;">المرحلة الحالية:</strong>
+                        <ul class="tech-list" style="font-size: 0.9rem;">
+                            <li>تشفير البيانات أثناء النقل.</li>
+                            <li>عزل حسابات المستخدمين.</li>
+                            <li>سياسات واضحة لبيانات الشركات.</li>
+                        </ul>
+                    </div>
+                    <div style="flex: 1;">
+                        <strong style="color: #334155; display: block; margin-bottom: 5px;">المرحلة المتقدمة (مع النموذج
+                            المحلي):</strong>
+                        <ul class="tech-list" style="font-size: 0.9rem;">
+                            <li>تشغيل المهام الحساسة على بنية مملوكة.</li>
+                            <li>مستويات أعلى من الخصوصية للشركات.</li>
+                        </ul>
+                    </div>
+                </div>
+                <p style="margin-top: 10px; font-size: 0.9rem;">هذا النهج المرحلي يوازن بين سرعة الإطلاق واستكمال البنية
+                    السيادية تدريجياً.</p>
+            </div>
+        </div>
+
+        <!-- 4. Scalability -->
+        <div class="tech-section">
+            <div class="tech-header">
+                <span class="tech-icon">📈</span>
+                <span class="tech-title">4. قابلية التوسع (Scalable by Design)</span>
+            </div>
+            <div class="tech-content">
+                <p>تم تصميم المنصة كبنية قابلة للتوسع التدريجي:</p>
+                <ul class="tech-list">
+                    <li>توزيع الخدمات لتجنب نقاط الفشل (Microservices approach).</li>
+                    <li>إمكانية رفع الموارد (Vertical/Horizontal Scaling) حسب حجم الاستخدام.</li>
+                    <li>مراقبة أداء مستمرة لضمان الاستقرار.</li>
+                </ul>
+                <p><strong>النتيجة:</strong> المنصة قادرة على استيعاب نمو سريع دون الحاجة لإعادة بناء النظام من الصفر.
+                </p>
+            </div>
+        </div>
+
+        <!-- 5. Strategic Advantage -->
+        <div class="strategic-advantage">
+            <h3 style="margin-top: 0; color: #38bdf8;">5. الميزة الاستراتيجية التقنية</h3>
+            <ul style="list-style: none; padding: 0; margin: 0; font-size: 1.1rem;">
+                <li style="margin-bottom: 10px;">✅ تقليل تكلفة التشغيل عبر النموذج الهجين.</li>
+                <li style="margin-bottom: 10px;">✅ قابلية توسع تدريجية ومستقرة.</li>
+                <li style="margin-bottom: 0;">✅ مسار واضح نحو استقلالية أكبر عبر النموذج المحلي.</li>
+            </ul>
+            <p style="margin-top: 20px; opacity: 0.8; font-size: 0.95rem;">
+                الهدف ليس فقط تشغيل المنصة اليوم، بل بناء بنية تشغيلية قادرة على النمو لسنوات.
+            </p>
+        </div>
+
+    </div>
+</body>
+
+</html>

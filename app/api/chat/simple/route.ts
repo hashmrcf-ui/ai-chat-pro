@@ -72,7 +72,7 @@ export async function POST(req: Request) {
             system: basePrompt,
             messages,
             maxSteps: 5,
-            tools: (await import('@/lib/tools')).getTools(userId),
+            tools: (await import('@/lib/tools')).getTools(),
         };
 
         const result = await generateText(generateOptions);

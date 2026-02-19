@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe AI - عرض شراكة استراتيجية | المهندس هاشم جميل</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
+
+        :root {
+            --primary: #4F46E5;
+            /* Indigo */
+            --secondary: #7C3AED;
+            /* Violet */
+            --accent: #10B981;
+            /* Emerald */
+            --dark: #1F2937;
+            --light: #F3F4F6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #f8fafc;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Header / Hero */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 80px 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo-placeholder {
+            width: 180px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 30px;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo-placeholder img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 28px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+
+        .role {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .tagline {
+            font-size: 1.25rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+
+        /* Sections */
+        section {
+            padding: 60px 50px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        section:nth-child(even) {
+            background: #fafafa;
+        }
+
+        h2 {
+            font-size: 2.25rem;
+            color: var(--primary);
+            margin-bottom: 40px;
+            position: relative;
+            display: inline-block;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            right: 0;
+            width: 60%;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+            border-top: 5px solid var(--primary);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .icon-large {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        /* Highlight Box */
+        .highlight {
+            background: linear-gradient(to right, #ecfdf5, #d1fae5);
+            border: 1px solid #10b981;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .highlight p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #065f46;
+        }
+
+        /* Lists */
+        ul.check-list {
+            list-style: none;
+        }
+
+        ul.check-list li {
+            margin-bottom: 15px;
+            padding-right: 30px;
+            position: relative;
+            font-size: 1.1rem;
+        }
+
+        ul.check-list li::before {
+            content: '✓';
+            position: absolute;
+            right: 0;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* Financial Table */
+        .financial-box {
+            background: var(--dark);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .financial-val {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin: 10px 0;
+        }
+
+        /* Footer */
+        footer {
+            background: #111827;
+            color: white;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .cta-btn {
+            background: var(--accent);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+
+        .cta-btn:hover {
+            background: #059669;
+        }
+
+        @media (max-width: 768px) {
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <!-- 
+                ========================================================================
+                🔴 تنبيه للمستخدم: قم بإضافة مسار الشعار هنا داخل علامة img
+                مثال: src="C:\Users\Administrator\.gemini\antigravity\brain\...\vibe_logo.png"
+                ========================================================================
+            -->
+            <div class="logo-placeholder">
+                <img src="" alt="Vibe AI Logo (أضف المسار هنا)" id="vibe-logo">
+            </div>
+
+            <h1>Vibe AI</h1>
+            <div class="role">تقديم: المهندس هاشم جميل</div>
+            <p style="font-size: 1.2rem; margin-bottom: 10px;">المؤسس والمدرب المختص في أتمتة الذكاء الاصطناعي</p>
+            <div class="tagline">شراكة استراتيجية لبناء المنصة العربية رقم #1</div>
+        </header>
+
+        <!-- Executive Summary -->
+        <section>
+            <h2>الملخص التنفيذي</h2>
+            <div class="highlight">
+                <p>
+                    نحن لا نبحث عن مجرد تمويل، بل عن <strong>شريك استراتيجي</strong> يتبنى مشروعاً جاهزاً بنسبة
+                    <strong>80%</strong>.
+                    لدينا الفريق، الخبرة، والنظام شبه المكتمل. نحتاج الكيان الذي يوفر الغطاء المالي واللوجستي (سيرفرات،
+                    رواتب) للهيمنة على سوق فارغ تماماً.
+                </p>
+            </div>
+            <div class="grid-3">
+                <div class="card">
+                    <span class="icon-large">🚀</span>
+                    <h3>جاهزية النظام</h3>
+                    <p>المنتج جاهز بنسبة 80%. المتبقي هو التوسع بالبنية التحتية واللمسات النهائية قبل الإطلاق الضخم.</p>
+                </div>
+                <div class="card">
+                    <span class="icon-large">🌍</span>
+                    <h3>خطة التوسع</h3>
+                    <p>البداية من <strong>الخليج واليمن</strong>، ثم التوسع القاري إلى <strong>أفريقيا</strong>، وصولاً
+                        للعالمية.</p>
+                </div>
+                <div class="card">
+                    <span class="icon-large">🧠</span>
+                    <h3>الخبرة المؤسسية</h3>
+                    <p>بقيادة مهندس مختص ومدرب في أتمتة الـ AI، مع فريق جاهز للتطوير على أجهزة عالية الأداء.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Problem & Opportunity -->
+        <section>
+            <div class="grid-2">
+                <div>
+                    <h2>الساحة فارغة (The Arena is Empty)</h2>
+                    <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                        السوق الحالي في الخليج وأفريقيا يعتمد على أدوات عالمية مشتتة، باهظة الثمن، ولا تفهم المستخدم
+                        المحلي.
+                    </p>
+                    <ul class="check-list">
+                        <li>غياب منصة عربية شاملة (All-in-One).</li>
+                        <li>صعوبة الدفع والاشتراك في الخدمات العالمية.</li>
+                        <li>الحاجة الماسة لخدمات B2B (شركات ومؤسسات) تدعم اللغة العربية والبيئة المحلية.</li>
+                    </ul>
+                </div>
+                <div class="card" style="background: #f0fdf4; border-color: #16a34a;">
+                    <h3>الفرصة الذهبية</h3>
+                    <p style="font-size: 1.1rem;">
+                        السيطرة على السوق الآن تعني أن نصبح <strong>المرجع الأول</strong> للذكاء الاصطناعي في المنطقة.
+                        من يسبق الآن، يمتلك السوق لسنوات قادمة.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Unique Value Proposition -->
+        <section>
+            <h2>قوة المنصة (Vibe AI Power)</h2>
+            <p style="margin-bottom: 40px; font-size: 1.2rem;">أكثر من مجرد "شات بوت". نحن نبني نظام تشغيل متكامل
+                للأعمال.</p>
+
+            <div class="grid-2">
+                <!-- Comprehensive -->
+                <div class="card">
+                    <h3>💎 المنصة الشاملة</h3>
+                    <p>صوت، صورة، فيديو، برمجة، تحليل بيانات، وترجمة. كل شيء في اشتراك واحد.</p>
+                </div>
+                <!-- Marketing Agent -->
+                <div class="card">
+                    <h3>🛍️ وكيل التسويق والتسوق الذكي</h3>
+                    <p>أقوى ميزة تنافسية. بحث في المتاجر المحلية (نون، أمازون، جوميا)، مقارنة أسعار، وجلب أفضل الصفقات.
+                    </p>
+                </div>
+                <!-- Local Model -->
+                <div class="card">
+                    <h3>🕋 النموذج المحلي المخصص</h3>
+                    <p>نموذج لغوي مبني ومطوّر محلياً ليفهم اللهجات، الثقافة، واحتياجات السوق الخليجي والأفريقي بدقة
+                        متناهية.</p>
+                </div>
+                <!-- Pricing -->
+                <div class="card">
+                    <h3>💸 تسعير لا يُنافس</h3>
+                    <p><strong>$20 شهرياً</strong> أو عرض مدمر <strong>$79 سنوياً</strong>.<br>اشتراك عالمي ومحلي بآليات
+                        دفع ميسرة.</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 50px;">
+                <h3 style="text-align: center; margin-bottom: 30px; font-size: 1.8rem;">❤️ القلوب الستة (The 6 Core
+                    Engines)</h3>
+                <div class="grid-3" style="text-align: center;">
+                    <div class="card">🔍 محرك البحث الشامل</div>
+                    <div class="card">💲 مقارنة الأسعار والمنتجات</div>
+                    <div class="card">🌐 بناء المواقع والأنظمة</div>
+                    <div class="card">🗄️ بناء قواعد البيانات</div>
+                    <div class="card">📊 إنشاء العروض التقديمية</div>
+                    <div class="card">🛠️ الخدمات المؤتمتة</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Roadmap -->
+        <section>
+            <h2>خارطة الطريق (Roadmap)</h2>
+            <div style="border-right: 4px solid var(--primary); padding-right: 30px;">
+                <div style="margin-bottom: 40px;">
+                    <h3 style="color: var(--secondary);">المرحلة 1: الانطلاق (الخليج واليمن)</h3>
+                    <p>تفعيل الاشتراكات المحلية، إطلاق وكلاء التسوق للسوق الخليجي، الاستحواذ على أول 50 شركة (B2B).</p>
+                </div>
+                <div style="margin-bottom: 40px;">
+                    <h3 style="color: var(--secondary);">المرحلة 2: التوسع القاري (أفريقيا)</h3>
+                    <p>دخول الأسواق الكبرى (مصر، المغرب، نيجيريا). استغلال ضعف المنافسة هناك.</p>
+                </div>
+                <div>
+                    <h3 style="color: var(--secondary);">المرحلة 3: العالمية</h3>
+                    <p>التحول إلى منصة عالمية تنافس الكبار بمميزات فريدة وسعر تنافسي.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Ask -->
+        <section style="background: #1e1b4b; color: white;">
+            <h2 style="color: white; border-bottom-color: var(--accent);">عرض الشراكة</h2>
+            <div class="grid-2">
+                <div>
+                    <h3>ما نقدمه:</h3>
+                    <ul class="check-list" style="margin-top: 20px;">
+                        <li>نظام جاهز بنسبة 80%.</li>
+                        <li>إدارة تقنية كاملة وتطوير مستمر.</li>
+                        <li>فريق مؤسس خبير ومدرب في الأتمتة.</li>
+                        <li>خطة عمل واضحة وسوق فارغ.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>ما نطلبه من الشريك:</h3>
+                    <ul class="check-list" style="margin-top: 20px;">
+                        <li>تبني المشروع وتغطية تكاليف التطوير (سيرفرات، أجهزة قوية، رواتب).</li>
+                        <li>المساهمة بنسبة 50% في تكاليف التطوير المستقبلية.</li>
+                        <li>الدعم اللوجستي للتوسع.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="financial-box" style="margin-top: 40px;">
+                <p>العقد المبدئي</p>
+                <div class="financial-val">$30,000</div>
+                <p>للشراكة الأولية والبدء الفوري</p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <h2>جاهزون للانطلاق؟</h2>
+            <p>الفرصة لا تتكرر. السوق ينتظر البطل القادم.</p>
+            <a href="mailto:hashim@vibeai.com" class="cta-btn">تواصل معنا لبدء الشراكة</a>
+            <p style="margin-top: 30px; font-size: 0.9rem; opacity: 0.7;">Vibe AI © 2026 - جميع الحقوق محفوظة للمهندس
+                هاشم جميل</p>
+        </footer>
+    </div>
+</body>
+
+</html>

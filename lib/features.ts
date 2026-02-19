@@ -2,10 +2,16 @@ export const features = {
     ai: {
         // The primary model to use. If this fails, the system will try the others in order.
         models: [
-            // === PAID: SUPER INTELLIGENCE ===
-            'minimax/minimax-m2.5',            // #1 Best Programming & Productivity
-            'z-ai/glm-5',                      // #2 High-End Reasoning & Search Optimization (GLM-5)
-            'deepseek/deepseek-r1',            // #3 Deep Reasoning
+            // === VIBE AI CONTROLLER (Auto) ===
+            'vibe-ai-007',                        // #0 The "Controller" Logic
+
+            // === FASTEST & STABLE (Recommended) ===
+            'google/gemini-2.0-flash-001',        // #1 Fast, Stable, Good for Shopping
+
+            // === POWERFUL ALTERNATIVES ===
+            'meta-llama/llama-3.1-70b-instruct',  // #2 High Intelligence
+            'minimax/minimax-m2.5',               // #3 Programming
+            'deepseek/deepseek-r1',               // #4 Reasoning
 
             // === PAID: STANDARD ===
             'anthropic/claude-3.5-sonnet',     // Reliable All-rounder

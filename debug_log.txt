@@ -1,0 +1,18 @@
+[2026-02-17T01:06:39.373Z] --- NEW REQUEST ---
+[2026-02-17T01:06:39.375Z] Request for model: google/gemini-2.0-flash-001, Mode: shopping
+[2026-02-17T01:06:46.015Z] Shopping Mode Activated
+[2026-02-17T01:06:46.017Z] Calling streamText...
+[2026-02-17T01:06:46.023Z] streamText returned type: object
+[2026-02-17T01:06:46.024Z] Is Promise? false
+[2026-02-17T01:06:46.024Z] Final Result Keys: _totalUsage, _finishReason, _rawFinishReason, _steps, outputSpecification, includeRawChunks, tools, addStream, closeStream, baseStream
+[2026-02-17T01:06:46.025Z] Using toTextStreamResponse
+[2026-02-17T01:10:31.196Z] --- NEW REQUEST (DEBUG V2) ---
+[2026-02-17T01:10:31.198Z] API Key Check: SERPAPI_API_KEY is MISSING
+[2026-02-17T01:10:31.199Z] API Key Check: SERPER_API_KEY is PRESENT
+[2026-02-17T01:10:31.202Z] Request: Mode=shopping, Model=google/gemini-2.0-flash-001
+[2026-02-17T01:10:34.146Z] Injecting Shopping Prompt...
+[2026-02-17T01:10:34.153Z] Starting streamText...
+[2026-02-17T01:10:34.171Z] Stream created. Keys: _totalUsage, _finishReason, _rawFinishReason, _steps, outputSpecification, includeRawChunks, tools, addStream, closeStream, baseStream
+[2026-02-17T01:10:34.173Z] Returning toTextStreamResponse...
+[2026-02-17T01:10:48.612Z] [Step] Tool Executed: searchShopping
+[2026-02-17T01:10:48.613Z] [Step] Tool Results: [{"type":"tool-result","toolCallId":"tool_searchSh...
