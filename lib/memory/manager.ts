@@ -139,7 +139,7 @@ export class MemoryManager {
             sentiment: z.enum(['positive', 'neutral', 'negative', 'frustrated']).describe("User's emotional state"),
             entities: z.array(z.string()).describe("Important proper nouns mentioned (Names, Places, Tech stacks)"),
             facts: z.array(z.string()).describe("Long-term facts about the user"),
-            preferences: z.record(z.string()).describe("User preferences (language, style, forbidden topics)"),
+            preferences: z.record(z.string(), z.string()).describe("User preferences (language, style, forbidden topics)"),
             constraints: z.array(z.string()).optional(),
             decisions: z.array(z.string()).describe("Decisions agreed upon in this conversation"),
         });
