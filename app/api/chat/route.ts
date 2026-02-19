@@ -36,6 +36,7 @@ export async function POST(req: Request) {
         let basePrompt = await getSystemPrompt();
         let contextBlock = '';
 
+        /* TEMPORARILY DISABLED: Advanced Memory Retrieval
         // 3. Retrieval Pipeline (Conditional on opt-in)
         if (userId) {
             try {
@@ -55,6 +56,7 @@ export async function POST(req: Request) {
                 console.warn("[Vibe Pipeline] Retrieval Error:", e);
             }
         }
+        */
 
         // 4. Prompt Composition
         const selectedModelInput = model || features.ai.models[0];
@@ -84,9 +86,10 @@ export async function POST(req: Request) {
                 if (userId && c.text) {
                     // 6. Post-LLM Pipeline (Async)
 
-                    // a) Log Assistant Response
+                    // a) Log Assistant Response (KEEP THIS for Chat History)
                     await memorySystem.logRawMessage(userId, 'assistant', c.text);
 
+                    /* TEMPORARILY DISABLED: Advanced Memory Features
                     // b) Memory Gate (Extract facts/prefs)
                     await memorySystem.extractAndSave(userId, lastMessage, c.text);
 
@@ -95,6 +98,7 @@ export async function POST(req: Request) {
                         console.log(`[Vibe Pipeline] Triggering periodic summary for user ${userId}`);
                         await memorySystem.saveConversationSummary(userId, messages.concat([{ role: 'assistant', content: c.text }]));
                     }
+                    */
                 }
             }
         });
