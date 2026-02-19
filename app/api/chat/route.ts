@@ -76,7 +76,7 @@ export async function POST(req: Request) {
             model: getModelProvider(selectedModel),
             system: fullSystemPrompt,
             messages,
-            maxSteps: 5,
+
             tools: getTools(),
             toolChoice: 'auto',
             temperature: 0.5,
