@@ -1,6 +1,18 @@
 // A soft, generative ambient pad built with the Web Audio API — no audio files.
 // Luxury sites almost always offer sound; this keeps it weightless and opt-in.
+export type DroneVoice = [frequency: number, type: OscillatorType, level: number];
+
+// A-major colour: A2, E3, A3 (slightly detuned for width), C#4.
+const DEFAULT_VOICES: DroneVoice[] = [
+  [110, 'sine', 0.22],
+  [164.81, 'triangle', 0.1],
+  [220.6, 'sine', 0.12],
+  [277.18, 'sine', 0.05],
+];
+
 export class AmbientDrone {
+  constructor(private voices: DroneVoice[] = DEFAULT_VOICES) {}
+
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
   private sources: OscillatorNode[] = [];
@@ -17,14 +29,7 @@ export class AmbientDrone {
     filter.connect(master);
     master.connect(ctx.destination);
 
-    // A-major colour: A2, E3, A3 (slightly detuned for width), C#4.
-    const voices: Array<[number, OscillatorType, number]> = [
-      [110, 'sine', 0.22],
-      [164.81, 'triangle', 0.1],
-      [220.6, 'sine', 0.12],
-      [277.18, 'sine', 0.05],
-    ];
-    for (const [freq, type, level] of voices) {
+    for (const [freq, type, level] of this.voices) {
       const osc = ctx.createOscillator();
       osc.type = type;
       osc.frequency.value = freq;
