@@ -1,0 +1,322 @@
+{
+ "badges": [
+  {
+   "name": "ايسكريم ليمون",
+   "src": "moka/web/b1.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "ايسكريم فستق",
+   "src": "moka/web/b2.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "ايسكريم مانجو",
+   "src": "moka/web/b3.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "ايسكريم شوكولاتة بلجيكي",
+   "src": "moka/web/b17.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "ايسكريم سكاي بلو",
+   "src": "moka/web/b23.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "ايسكريم تشيز كيك",
+   "src": "moka/web/b34.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "ايسكريم كافي",
+   "src": "moka/web/b36.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "ايسكريم نوتيلا",
+   "src": "moka/web/b39.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "ايسكريم شوكولاتة ايطالي",
+   "src": "moka/web/b57.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "آيسكريم يونيكورن",
+   "src": "moka/web/b68.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "ايسكريم butter caramel",
+   "src": "moka/web/b75.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "ايسكريم فراولة",
+   "src": "moka/web/b76.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "ايسكريم مورا",
+   "src": "moka/web/b111.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "ايسكريم بقلاوة",
+   "src": "moka/web/b140.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "ايسكريم شوكولاتة كندر",
+   "src": "moka/web/b142.webp",
+   "cat": "icecream"
+  },
+  {
+   "name": "جاتو موس دبل شوكلت",
+   "src": "moka/web/b29.webp",
+   "cat": "cakes"
+  },
+  {
+   "name": "جاتو ريد فيلفت كيك",
+   "src": "moka/web/b67.webp",
+   "cat": "cakes"
+  },
+  {
+   "name": "ترتة بلاك فوريست ميني",
+   "src": "moka/web/b71.webp",
+   "cat": "cakes"
+  },
+  {
+   "name": "ترتة وايت فوريست وسط",
+   "src": "moka/web/b73.webp",
+   "cat": "cakes"
+  },
+  {
+   "name": "تشيز كيك فراولة",
+   "src": "moka/web/b101.webp",
+   "cat": "cakes"
+  },
+  {
+   "name": "وربات",
+   "src": "moka/web/b42.webp",
+   "cat": "oriental"
+  },
+  {
+   "name": "بقلاوة عنتابي اصابع صنوبر",
+   "src": "moka/web/b63.webp",
+   "cat": "oriental"
+  },
+  {
+   "name": "بقلاوة سوار الست عنتابي",
+   "src": "moka/web/b96.webp",
+   "cat": "oriental"
+  },
+  {
+   "name": "عش الغراب لوتس",
+   "src": "moka/web/b172.webp",
+   "cat": "oriental"
+  },
+  {
+   "name": "عش الغراب",
+   "src": "moka/web/b287.webp",
+   "cat": "oriental"
+  },
+  {
+   "name": "شعير مدور",
+   "src": "moka/web/b11.webp",
+   "cat": "bakery"
+  },
+  {
+   "name": "دونات شوكولاتة",
+   "src": "moka/web/b121.webp",
+   "cat": "bakery"
+  },
+  {
+   "name": "فطائر قمع",
+   "src": "moka/web/b123.webp",
+   "cat": "bakery"
+  },
+  {
+   "name": "فطائر فرنسي جبن سائل",
+   "src": "moka/web/b166.webp",
+   "cat": "bakery"
+  },
+  {
+   "name": "شوفان ابيض بالزبيب",
+   "src": "moka/web/b107.webp",
+   "cat": "cookies"
+  },
+  {
+   "name": "كوكيز رد فيلفت",
+   "src": "moka/web/b234.webp",
+   "cat": "cookies"
+  },
+  {
+   "name": "ايس امريكانو صغير",
+   "src": "moka/web/b188.webp",
+   "cat": "drinks"
+  }
+ ],
+ "panels": {
+  "icecream": [
+   {
+    "name": "كوب ايسكريم عائلي * 5 كرات",
+    "src": "moka/web/p264.webp"
+   },
+   {
+    "name": "آيسكريم يونيكورن",
+    "src": "moka/web/p68.webp"
+   },
+   {
+    "name": "ايسكريم فستق",
+    "src": "moka/web/p2.webp"
+   },
+   {
+    "name": "آيسكريم ماراكوجا",
+    "src": "moka/web/p90.webp"
+   },
+   {
+    "name": "ايسكريم سكاي بلو",
+    "src": "moka/web/p23.webp"
+   },
+   {
+    "name": "ايسكريم تفاح",
+    "src": "moka/web/p260.webp"
+   }
+  ],
+  "cakes": [
+   {
+    "name": "جاتو ريد فيلفت كيك",
+    "src": "moka/web/p67.webp"
+   },
+   {
+    "name": "جاتو موس دبل شوكلت",
+    "src": "moka/web/p29.webp"
+   },
+   {
+    "name": "تشيز كيك فراولة",
+    "src": "moka/web/p101.webp"
+   },
+   {
+    "name": "ترتة لوتس صغير",
+    "src": "moka/web/p80.webp"
+   },
+   {
+    "name": "تارت",
+    "src": "moka/web/p116.webp"
+   },
+   {
+    "name": "ترتة وايت فوريست وسط",
+    "src": "moka/web/p73.webp"
+   }
+  ],
+  "oriental": [
+   {
+    "name": "وربات",
+    "src": "moka/web/p42.webp"
+   },
+   {
+    "name": "بقلاوة عنتابي اصابع صنوبر",
+    "src": "moka/web/p63.webp"
+   },
+   {
+    "name": "بلورية",
+    "src": "moka/web/p69.webp"
+   },
+   {
+    "name": "بقلاوة سوار الست عنتابي",
+    "src": "moka/web/p96.webp"
+   },
+   {
+    "name": "عش الغراب لوتس",
+    "src": "moka/web/p172.webp"
+   },
+   {
+    "name": "عش الغراب",
+    "src": "moka/web/p287.webp"
+   }
+  ],
+  "bakery": [
+   {
+    "name": "فطائر قمع",
+    "src": "moka/web/p123.webp"
+   },
+   {
+    "name": "دونات شوكولاتة",
+    "src": "moka/web/p121.webp"
+   },
+   {
+    "name": "شعير مدور",
+    "src": "moka/web/p11.webp"
+   },
+   {
+    "name": "كرواسون جبن سائل",
+    "src": "moka/web/p99.webp"
+   },
+   {
+    "name": "كرواسون فرنسي ماربل",
+    "src": "moka/web/p169.webp"
+   },
+   {
+    "name": "فطائر فرنسي جبن سائل",
+    "src": "moka/web/p166.webp"
+   }
+  ],
+  "cookies": [
+   {
+    "name": "بسكويت كوكيز",
+    "src": "moka/web/p296.webp"
+   },
+   {
+    "name": "شوفان ابيض بالزبيب",
+    "src": "moka/web/p107.webp"
+   },
+   {
+    "name": "شوكو ناتس",
+    "src": "moka/web/p167.webp"
+   },
+   {
+    "name": "كوكيز رد فيلفت",
+    "src": "moka/web/p234.webp"
+   },
+   {
+    "name": "دارك كوكيز",
+    "src": "moka/web/p14.webp"
+   },
+   {
+    "name": "كرات كرانشي",
+    "src": "moka/web/p233.webp"
+   }
+  ],
+  "drinks": [
+   {
+    "name": "نسكافية بلاك كبير",
+    "src": "moka/web/p6.webp"
+   },
+   {
+    "name": "ايس لوتس لاتية صغير",
+    "src": "moka/web/p145.webp"
+   },
+   {
+    "name": "ايس امريكانو صغير",
+    "src": "moka/web/p188.webp"
+   },
+   {
+    "name": "ايس تي ماكس صغير",
+    "src": "moka/web/p250.webp"
+   },
+   {
+    "name": "كافي شو كراميل موكا كبير",
+    "src": "moka/web/p128.webp"
+   },
+   {
+    "name": "قهوة موكا المختصة",
+    "src": "moka/web/p82.webp"
+   }
+  ]
+ }
+}
