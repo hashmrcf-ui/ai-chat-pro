@@ -235,7 +235,7 @@ export default function MokaExperience() {
       <header className={s.nav}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className={s.logo} src="moka/logo.png" alt="موكا" width={263} height={43} />
-        <span className={s.navNote}>صنعاء · منذ ١٩٩١</span>
+        <span className={s.navNote}>مقترح تصميمي غير رسمي · نموذج أولي</span>
       </header>
 
       <div ref={loaderRef} className={s.loader} aria-hidden="true">
