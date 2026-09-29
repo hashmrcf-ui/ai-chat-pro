@@ -10,17 +10,37 @@
 
 ## التشغيل
 
-يحتاج Python 3.10 أو أحدث.
+يحتاج Python 3.10 أو أحدث ([python.org](https://www.python.org/downloads/)).
 
+**1. التثبيت (مرة واحدة)**
+
+Mac أو Linux:
 ```bash
 cd bank-agent-demo
 python3 -m venv .venv
-source .venv/bin/activate          # في Windows: .venv\Scripts\activate
+source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.server:app --port 8000
+cp .env.example .env
 ```
 
-ثم افتح `http://localhost:8000`.
+Windows (PowerShell):
+```powershell
+cd bank-agent-demo
+py -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env
+```
+إذا رفض PowerShell أمر `activate`، شغّل مرة واحدة: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` ثم أعد المحاولة.
+
+**2. ضع مفتاحك** في ملف `.env` في السطر `ANTHROPIC_API_KEY=`. الملف على جهازك فقط، والمستودع يتجاهله. بدون مفتاح يعمل العرض في وضع المحاكاة.
+
+**3. التشغيل** (في كل مرة، بعد تفعيل البيئة بأمر `activate`):
+```bash
+uvicorn app.server:app --port 8000 --env-file .env
+```
+
+ثم افتح `http://localhost:8000` في المتصفح. للإيقاف: `Ctrl+C`.
 
 ## ثلاثة أوضاع للنموذج
 
