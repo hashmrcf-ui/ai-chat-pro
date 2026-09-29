@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>سند · عرض بنك الأمل</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Doto:wght@900&family=Readex+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <canvas id="logo" class="pix" aria-hidden="true"></canvas>
+      <div><b>بنك الأمل</b><span>عرض تجريبي · بيانات وهمية</span></div>
+    </div>
+    <div class="mode" id="mode" title="">…</div>
+    <button class="btn ghost" id="reset" type="button">إعادة العرض</button>
+  </header>
+
+  <main class="stage">
+    <section class="phone" aria-label="تطبيق العميل">
+      <div class="phone-top">
+        <div><b>سند</b><span>المساعد الرقمي</span></div>
+        <span class="live" id="live">متصل</span>
+      </div>
+      <div class="chat" id="chat" aria-live="polite"></div>
+      <div class="moments" id="moments" aria-label="أسئلة العرض"></div>
+      <form class="composer" id="form">
+        <input id="input" type="text" autocomplete="off" placeholder="اكتب سؤالك…" aria-label="رسالتك">
+        <button class="btn" type="submit" id="send">إرسال</button>
+      </form>
+
+      <div class="sheet" id="sheet" hidden>
+        <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+          <div class="sheet-kick">تأكيد من تطبيق البنك</div>
+          <div class="sheet-title" id="sheetTitle"></div>
+          <p class="sheet-note">هذه الشاشة يعرضها التطبيق نفسه، لا المساعد. لا يتم أي إجراء قبل تأكيدك.</p>
+          <label for="otp">رمز التحقق المرسل لجوالك</label>
+          <input id="otp" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+          <div class="sheet-hint">رمز التجربة: <b id="otpHint"></b></div>
+          <div class="sheet-err" id="sheetErr" hidden></div>
+          <div class="sheet-actions">
+            <button class="btn" id="confirmBtn" type="button">تأكيد الإيقاف</button>
+            <button class="btn ghost" id="cancelBtn" type="button">إلغاء</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="خلف الكواليس">
+      <div class="panel-head">
+        <h2>خلف <span class="doto">SCENES</span></h2>
+        <span class="stats" id="stats">كل خطوة يأخذها الوكيل تظهر هنا لحظة حدوثها</span>
+      </div>
+      <ol class="trace" id="trace"></ol>
+      <div class="boxes">
+        <div class="box"><h3>بطاقات العميل</h3><ul id="cards"></ul></div>
+        <div class="box"><h3>تذاكر الموظفين</h3><ul id="tickets"><li class="empty">لا توجد تذاكر</li></ul></div>
+        <div class="box"><h3>سجل التدقيق</h3><ol id="audit"><li class="empty">لا أحداث بعد</li></ol></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
