@@ -26,11 +26,11 @@ def load_settings() -> Settings:
     return Settings(
         provider=os.getenv("LLM_PROVIDER") or ("anthropic" if has_key else "scripted"),
         anthropic_model=os.getenv("ANTHROPIC_MODEL", "claude-opus-5"),
-        effort=os.getenv("EFFORT", "medium"),
+        effort=os.getenv("EFFORT", "low"),
         local_base_url=os.getenv("LOCAL_BASE_URL", "http://localhost:11434/v1"),
         local_model=os.getenv("LOCAL_MODEL", "qwen2.5:14b"),
         local_api_key=os.getenv("LOCAL_API_KEY", ""),
-        prompt_version=os.getenv("PROMPT_VERSION", "sanad-v1"),
+        prompt_version=os.getenv("PROMPT_VERSION", "sanad-v2"),
         sim_delay=float(os.getenv("SIM_DELAY", "0.7")),
     )
 

@@ -147,10 +147,11 @@ def freeze_card(ctx: "ToolContext", card_last4: str, reason: str) -> dict:
     if card.status == "frozen":
         raise ToolError(f"البطاقة المنتهية بـ {card.last4} موقوفة مسبقاً. أخبر العميل بذلك.")
     reasons = {"lost": "فقدان", "stolen": "سرقة", "suspicious": "عملية مشبوهة", "temporary": "إيقاف مؤقت"}
-    summary = f"إيقاف مؤقت لـ{card.kind} المنتهية بـ {card.last4} (السبب: {reasons[reason]})"
+    summary = f"إيقاف {card.kind} المنتهية بـ {card.last4} مؤقتاً"
     action = ctx.bank.create_pending(ctx.session.id, ctx.session.customer_id, "freeze_card",
-                                     {"card_id": card.id, "reason": reason}, summary)
-    ctx.event = {"type": "pending_action", "action_id": action.id, "summary": summary}
+                                     {"card_id": card.id, "reason": reason}, f"{summary} (السبب: {reasons[reason]})")
+    ctx.event = {"type": "pending_action", "action_id": action.id, "summary": summary,
+                 "card_kind": card.kind, "card_last4": card.last4, "reason": reasons[reason]}
     return {"status": "awaiting_customer_confirmation", "action_id": action.id,
             "note": "لم تُوقف البطاقة بعد. تُوقف بعد تأكيد العميل من شاشة التطبيق."}
 

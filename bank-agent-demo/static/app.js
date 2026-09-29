@@ -1,8 +1,8 @@
-// واجهة العرض: محادثة العميل على اليمين، وكل خطوة للوكيل في لوحة «خلف الكواليس».
+// واجهة العرض: تطبيق العميل، ولوحة مراقبة تعرض كل خطوة للوكيل لحظة حدوثها.
 const $ = (id) => document.getElementById(id);
-const S = { id: null, otp: '', busy: false, pending: null, steps: 0, tokens: 0 };
+const S = { id: null, otp: '', busy: false, pending: null, steps: 0, tools: 0, tokens: 0, cached: 0, turns: 0, t0: 0, open: {} };
 
-const MOMENTS = [
+const SUGGESTIONS = [
   'ليش انخصم مني 45 ريال أمس؟',
   'كم رسوم التحويل الدولي؟',
   'أعطني آخر عمليات حساب أخوي',
@@ -10,8 +10,7 @@ const MOMENTS = [
   'كم صرفت على المطاعم هذا الشهر؟',
   'أبغى أكلم موظف',
 ];
-
-const TOOL_NAMES = {
+const TOOL_AR = {
   search_knowledge: 'البحث في وثائق البنك',
   get_accounts: 'الحسابات والأرصدة',
   list_transactions: 'آخر العمليات',
@@ -20,109 +19,179 @@ const TOOL_NAMES = {
   handoff_to_human: 'التحويل لموظف',
 };
 
+// ─── أدوات صغيرة ───
 function el(tag, cls, text) {
   const e = document.createElement(tag);
   if (cls) e.className = cls;
-  if (text !== undefined) e.textContent = text;
+  if (text !== undefined && text !== null) e.textContent = text;
   return e;
 }
+function icon(name) {
+  const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  s.setAttribute('class', 'ic');
+  const u = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  u.setAttribute('href', '#i-' + name);
+  s.appendChild(u);
+  return s;
+}
+const nowTime = () => new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+const fmt = (n) => Number(n).toLocaleString('en-US');
+function pretty(text, max = 1400) {
+  let out = typeof text === 'string' ? text : JSON.stringify(text);
+  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* نص عادي */ }
+  return out.length > max ? out.slice(0, max) + '\n…' : out;
+}
+const since = () => '+' + ((performance.now() - S.t0) / 1000).toFixed(1) + ' ث';
 
 // ─── المحادثة ───
-function bubble(kind, text, note) {
-  const b = el('div', 'bubble ' + kind, text);
-  if (note) b.appendChild(el('small', '', note));
-  $('chat').appendChild(b);
-  $('chat').scrollTop = $('chat').scrollHeight;
-  return b;
+function scrollChat() { $('chat').scrollTop = $('chat').scrollHeight; }
+function msg(kind, text) {
+  const m = el('div', 'msg ' + kind);
+  m.appendChild(el('div', 'bubble', text));
+  m.appendChild(el('div', 'meta', (kind === 'bot' ? 'سند · ' : '') + nowTime()));
+  $('chat').appendChild(m);
+  scrollChat();
+}
+function notice(kind, iconName, text, sub) {
+  const n = el('div', 'notice ' + kind);
+  n.appendChild(icon(iconName));
+  const t = el('div', '', text);
+  if (sub) t.appendChild(el('small', '', sub));
+  n.appendChild(t);
+  $('chat').appendChild(n);
+  scrollChat();
 }
 function typing() {
   const t = el('div', 'typing');
   t.append(el('i'), el('i'), el('i'));
   $('chat').appendChild(t);
-  $('chat').scrollTop = $('chat').scrollHeight;
+  scrollChat();
   return t;
 }
 function setBusy(on) {
   S.busy = on;
   $('send').disabled = on;
   $('input').disabled = on;
-  document.querySelectorAll('.moment').forEach((m) => { m.disabled = on; });
-  $('live').classList.toggle('busy', on);
-  $('live').textContent = on ? 'يفكّر…' : 'متصل';
+  document.querySelectorAll('.chip-q').forEach((c) => { c.disabled = on; });
+  $('presence').lastChild.textContent = on ? 'المساعد الذكي · يكتب…' : 'المساعد الذكي · متصل';
 }
 
-// ─── لوحة «خلف الكواليس» ───
-function pretty(text, max = 700) {
-  let out = text;
-  try { out = JSON.stringify(JSON.parse(text), null, 1); } catch (e) { /* نص عادي */ }
-  return out.length > max ? out.slice(0, max) + ' …' : out;
+// ─── لوحة المراقبة ───
+function kpis() {
+  $('kSteps').textContent = fmt(S.steps);
+  $('kTools').textContent = fmt(S.tools);
+  $('kTokens').textContent = S.tokens ? fmt(S.tokens) : '—';
+  $('kTokensSub').textContent = S.tokens ? `منها ${fmt(S.cached)} من الذاكرة المؤقتة` : 'لا يُحتسب في وضع المحاكاة';
+  $('turnCount').textContent = S.turns ? `${S.turns} ${S.turns === 1 ? 'رسالة' : 'رسائل'}` : '';
 }
-function row(label, bodyText, opts = {}) {
-  const li = el('li', opts.cls || '');
-  li.appendChild(el('div', 'lab', label));
-  const body = el('div', 'body');
-  if (opts.strong) body.appendChild(el('b', '', opts.strong + ' '));
-  if (bodyText) body.appendChild(document.createTextNode(bodyText));
-  if (opts.code) body.appendChild(el('pre', '', opts.code));
-  li.appendChild(body);
-  const tr = $('trace');
-  tr.querySelector('.empty-state')?.remove();
-  tr.appendChild(li);
-  tr.scrollTop = tr.scrollHeight;
+function markLast() {
+  const steps = $('timeline').querySelectorAll('.step');
+  steps.forEach((s) => s.classList.remove('last'));
+  if (steps.length) steps[steps.length - 1].classList.add('last');
+}
+function step({ kind = '', iconName, title, tag, pill, desc, details, busy }) {
+  const li = el('li', 'step ' + kind + (busy ? ' busy' : ''));
+  const node = el('span', 'node');
+  node.appendChild(icon(iconName));
+  const body = el('div', 's-body');
+  const row = el('div', 's-row');
+  row.appendChild(el('span', 's-title', title));
+  if (tag) row.appendChild(el('span', 'tag', tag));
+  if (pill) row.appendChild(el('span', 'pill ' + pill[0], pill[1]));
+  row.appendChild(el('span', 's-time', since()));
+  body.appendChild(row);
+  const d = el('div', 's-desc');
+  if (desc) d.textContent = desc;
+  body.appendChild(d);
+  (details || []).forEach(([label, text]) => addDetails(body, label, text));
+  li.append(node, body);
+  $('timeline').querySelector('.empty')?.remove();
+  $('timeline').appendChild(li);
+  markLast();
+  $('timeline').scrollTop = $('timeline').scrollHeight;
+  return li;
+}
+function addDetails(body, label, text) {
+  const det = el('details');
+  det.appendChild(el('summary', '', label));
+  det.appendChild(el('pre', 'code', pretty(text)));
+  body.appendChild(det);
+}
+function update(li, { kind, title, pill, desc, details }) {
+  li.classList.remove('busy', 'ok', 'warn', 'bad', 'neutral');
+  if (kind) li.classList.add(kind);
+  if (title) li.querySelector('.s-title').textContent = title;
+  if (pill) {
+    li.querySelector('.pill')?.remove();
+    li.querySelector('.s-time').before(el('span', 'pill ' + pill[0], pill[1]));
+  }
+  if (desc !== undefined) li.querySelector('.s-desc').textContent = desc;
+  li.querySelector('.s-time').textContent = since();
+  (details || []).forEach(([label, text]) => addDetails(li.querySelector('.s-body'), label, text));
 }
 function turnHead(text) {
   const li = el('li', 'turn');
-  const body = el('div', 'body');
-  body.append(el('span', '', 'رسالة العميل'), document.createTextNode('«' + text + '»'));
-  li.appendChild(body);
-  $('trace').querySelector('.empty-state')?.remove();
-  $('trace').appendChild(li);
+  const ava = el('span', 'ava');
+  ava.appendChild(icon('user'));
+  li.append(ava, el('span', 'q', '«' + text + '»'), el('time', '', nowTime()));
+  $('timeline').querySelector('.empty')?.remove();
+  $('timeline').appendChild(li);
 }
 
-function trace(ev) {
+function onEvent(ev) {
   switch (ev.type) {
     case 'guard_input':
-      row('حاجز الإدخال', ev.masked ? 'أُخفي رقم طويل قبل وصوله للنموذج:' : 'لا بيانات حساسة في الرسالة.',
-        { cls: ev.masked ? 'hot' : 'ok', code: ev.masked ? ev.text : '' });
+      step(ev.masked
+        ? { kind: 'warn', iconName: 'shield', title: 'حاجز الإدخال', pill: ['warn', 'أُخفيت بيانات'], desc: 'رقم طويل (بطاقة أو هوية) أُخفي قبل وصول الرسالة إلى النموذج.', details: [['ما وصل للنموذج', ev.text]] }
+        : { kind: 'ok', iconName: 'shield-check', title: 'حاجز الإدخال', pill: ['ok', 'سليم'], desc: 'لا توجد بيانات حساسة في الرسالة.' });
       break;
     case 'system_note':
-      row('رسالة من النظام', ev.text, { cls: 'ok' });
+      step({ kind: 'neutral', iconName: 'info', title: 'ملاحظة من النظام للنموذج', desc: ev.text });
       break;
     case 'model_call':
       S.steps += 1;
-      row('النموذج', ev.provider, { strong: 'الخطوة ' + ev.step });
+      S.open.model = step({ iconName: 'cpu', title: 'النموذج يحلّل الطلب', tag: ev.provider, desc: `الخطوة ${ev.step}`, busy: true });
       break;
     case 'model_result': {
       const u = ev.usage || {};
-      const tokens = (u.input_tokens || 0) + (u.output_tokens || 0);
+      const tokens = (u.input_tokens || 0) + (u.output_tokens || 0) + (u.cached_tokens || 0);
       S.tokens += tokens;
-      const usage = tokens ? ` · دخل ${u.input_tokens} (منها ${u.cached_tokens || 0} مخزّنة) · خرج ${u.output_tokens} رمزاً` : '';
-      const what = ev.stop === 'tool_use' ? 'يطلب: ' + ev.tools.map((t) => TOOL_NAMES[t] || t).join('، ')
-        : ev.stop === 'end' ? 'رد نهائي' : ev.stop === 'refusal' ? 'رفض أمني' : 'رد مقطوع';
-      row('القرار', what + usage);
+      S.cached += u.cached_tokens || 0;
+      const decision = ev.stop === 'tool_use' ? 'قرّر استخدام: ' + ev.tools.map((t) => TOOL_AR[t] || t).join('، ')
+        : ev.stop === 'end' ? 'قرّر الرد على العميل' : ev.stop === 'refusal' ? 'رفض الطلب لأسباب أمنية' : 'انقطع الرد';
+      const usage = tokens ? ` · ${fmt(u.input_tokens + (u.cached_tokens || 0))} رمز دخل (${fmt(u.cached_tokens || 0)} من الذاكرة المؤقتة) · ${fmt(u.output_tokens)} رمز خرج` : '';
+      update(S.open.model, { kind: ev.stop === 'refusal' ? 'bad' : '', title: 'قرار النموذج', desc: decision + usage });
+      kpis();
       break;
     }
     case 'tool_call':
-      row('استدعاء أداة', '', { strong: ev.name, code: JSON.stringify(ev.input, null, 1) });
+      S.tools += 1;
+      S.open.tool = step({ kind: 'neutral', iconName: 'plug', title: TOOL_AR[ev.name] || ev.name, tag: ev.name, desc: 'جارٍ التنفيذ على أنظمة البنك…', details: [['المدخلات التي طلبها النموذج', JSON.stringify(ev.input)]], busy: true });
+      kpis();
       break;
     case 'tool_result':
-      row(ev.is_error ? 'خطأ من الأداة' : 'نتيجة الأداة', `استغرقت ${ev.ms} ملّي ثانية`, { cls: ev.is_error ? 'hot' : '', code: pretty(ev.output) });
+      update(S.open.tool, ev.is_error
+        ? { kind: 'bad', pill: ['bad', 'خطأ'], desc: `رفضت الأداة الطلب خلال ${ev.ms} ملّي ثانية، وأُبلغ النموذج بالسبب.`, details: [['رسالة الأداة', ev.output]] }
+        : { kind: 'ok', pill: ['ok', 'نجح'], desc: `نُفّذت خلال ${ev.ms} ملّي ثانية، على بيانات هذا العميل فقط.`, details: [['النتيجة التي رآها النموذج', ev.output]] });
       break;
     case 'pending_action':
-      row('إجراء معلّق', 'بانتظار تأكيد العميل برمز التحقق. لم يُنفَّذ شيء بعد.', { cls: 'hot', strong: ev.summary });
+      step({ kind: 'warn', iconName: 'lock', title: 'إجراء بانتظار تأكيد العميل', pill: ['warn', 'معلّق'], desc: `${ev.summary}. لم يُنفَّذ شيء بعد، والتنفيذ يحتاج رمز التحقق.` });
       break;
     case 'handoff':
-      row('تذكرة للموظف', ev.summary, { cls: 'hot', strong: ev.ticket });
+      step({ kind: 'warn', iconName: 'headset', title: 'تحويل إلى موظف', tag: ev.ticket, desc: ev.summary });
       break;
     case 'guard_output':
-      row('حاجز الإخراج', ev.detail, { cls: ev.ok ? 'ok' : 'hot' });
+      step(ev.ok
+        ? { kind: 'ok', iconName: 'shield-check', title: 'حاجز الإخراج', pill: ['ok', 'سليم'], desc: ev.detail }
+        : { kind: 'bad', iconName: 'alert', title: 'حاجز الإخراج أوقف الرد', pill: ['bad', 'حُجب'], desc: ev.detail });
       break;
     case 'reply':
-      row('الرد للعميل', `بعد ${(ev.ms / 1000).toFixed(1)} ثانية`, { cls: 'ok' });
-      $('stats').textContent = `${S.steps} خطوات للنموذج` + (S.tokens ? ` · ${S.tokens.toLocaleString('en-US')} رمزاً` : '') + ` · آخر رد في ${(ev.ms / 1000).toFixed(1)} ث`;
+      step({ kind: 'ok', iconName: 'send', title: 'الرد وصل للعميل', desc: `خلال ${(ev.ms / 1000).toFixed(1)} ثانية من استلام الرسالة.` });
+      $('kLatency').textContent = (ev.ms / 1000).toFixed(1);
+      $('kLatencySub').textContent = 'ثانية، من الرسالة إلى الرد';
       break;
     case 'error':
-      row('خطأ', ev.message, { cls: 'hot' });
+      step({ kind: 'bad', iconName: 'alert', title: 'خطأ في الاتصال بالنموذج', desc: ev.message });
       break;
     default:
       break;
@@ -134,9 +203,12 @@ async function send(text) {
   text = text.trim();
   if (!text || S.busy || !S.id) return;
   setBusy(true);
-  bubble('me', text);
+  S.t0 = performance.now();
+  S.turns += 1;
+  msg('me', text);
   $('input').value = '';
   turnHead(text);
+  kpis();
   let dots = typing();
   try {
     const res = await fetch('/api/chat', {
@@ -157,34 +229,58 @@ async function send(text) {
         buf = buf.slice(i + 2);
         if (!chunk.startsWith('data: ')) continue;
         const ev = JSON.parse(chunk.slice(6));
-        trace(ev);
-        if (ev.type === 'reply') { dots?.remove(); dots = null; bubble('bot', ev.text); }
+        onEvent(ev);
+        if (ev.type === 'reply') { dots?.remove(); dots = null; msg('bot', ev.text); }
         if (ev.type === 'pending_action') S.pending = ev;
       }
     }
   } catch (e) {
-    row('خطأ', String(e.message || e), { cls: 'hot' });
-    bubble('app', 'انقطع الاتصال بالخادم. أعد المحاولة.');
+    step({ kind: 'bad', iconName: 'alert', title: 'انقطع الاتصال بالخادم', desc: String(e.message || e) });
+    notice('bad', 'alert', 'تعذّر الاتصال. أعد المحاولة.');
   } finally {
     dots?.remove();
     setBusy(false);
     refreshState();
-    if (S.pending) openSheet(S.pending);
+    if (S.pending) setTimeout(() => openSheet(S.pending), 450);
     else $('input').focus();
   }
 }
 
-// ─── شاشة التأكيد: يعرضها التطبيق، والتنفيذ من الخادم بعد رمز التحقق ───
+// ─── شاشة التأكيد ───
+const otpBoxes = [...$('otp').querySelectorAll('input')];
+function otpValue() { return otpBoxes.map((b) => b.value).join(''); }
+otpBoxes.forEach((box, i) => {
+  box.addEventListener('input', () => {
+    box.value = box.value.replace(/\D/g, '').slice(-1);
+    $('otp').classList.remove('error');
+    if (box.value && i < otpBoxes.length - 1) otpBoxes[i + 1].focus();
+    if (otpValue().length === 6) $('confirmBtn').focus();
+  });
+  box.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !box.value && i > 0) otpBoxes[i - 1].focus();
+    if (e.key === 'Enter') $('confirmBtn').click();
+  });
+  box.addEventListener('paste', (e) => {
+    const digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+    if (!digits) return;
+    e.preventDefault();
+    digits.split('').forEach((d, k) => { if (otpBoxes[k]) otpBoxes[k].value = d; });
+    otpBoxes[Math.min(digits.length, 5)].focus();
+  });
+});
 function openSheet(ev) {
   $('sheetTitle').textContent = ev.summary;
-  $('otp').value = '';
+  $('bcNum').textContent = '•••• •••• •••• ' + (ev.card_last4 || '');
+  $('bcKind').textContent = ev.card_kind || 'بطاقة';
+  $('bcReason').textContent = ev.reason ? 'السبب: ' + ev.reason : '';
   $('otpHint').textContent = S.otp;
+  otpBoxes.forEach((b) => { b.value = ''; });
+  $('otp').classList.remove('error');
   $('sheetErr').hidden = true;
   $('sheet').hidden = false;
-  $('otp').focus();
+  otpBoxes[0].focus();
 }
 function closeSheet() { $('sheet').hidden = true; S.pending = null; $('input').focus(); }
-
 async function actionCall(path, extra = {}) {
   const res = await fetch(path, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -193,62 +289,79 @@ async function actionCall(path, extra = {}) {
   return res.json();
 }
 $('confirmBtn').addEventListener('click', async () => {
-  const r = await actionCall('/api/confirm', { otp: $('otp').value });
-  if (!r.ok) { $('sheetErr').textContent = r.message; $('sheetErr').hidden = false; return; }
-  row('تأكيد العميل', r.message + ' نُفّذ مرة واحدة بمفتاح منع التكرار، وسُجّل في سجل التدقيق.', { cls: 'ok' });
-  bubble('app', r.message, 'من تطبيق البنك، بعد رمز التحقق');
+  if (!S.pending) return;
+  $('confirmBtn').disabled = true;
+  const r = await actionCall('/api/confirm', { otp: otpValue() });
+  $('confirmBtn').disabled = false;
+  if (!r.ok) {
+    $('sheetErr').textContent = r.message;
+    $('sheetErr').hidden = false;
+    $('otp').classList.add('error');
+    return;
+  }
+  S.t0 = performance.now();
+  step({ kind: 'ok', iconName: 'lock', title: 'العميل أكّد برمز التحقق', pill: ['ok', 'نُفّذ'], desc: r.message + ' نُفّذ مرة واحدة فقط بمفتاح منع التكرار، وسُجّل في سجل التدقيق.' });
+  notice('ok', 'check', r.message, 'من تطبيق البنك بعد التحقق من الرمز');
   closeSheet();
   refreshState();
 });
 $('cancelBtn').addEventListener('click', async () => {
+  if (!S.pending) return;
   const r = await actionCall('/api/cancel');
-  row('إلغاء من العميل', r.message);
-  bubble('app', r.message, 'من تطبيق البنك');
+  S.t0 = performance.now();
+  step({ kind: 'neutral', iconName: 'info', title: 'العميل ألغى الطلب', desc: r.message });
+  notice('warn', 'info', r.message);
   closeSheet();
   refreshState();
 });
-$('otp').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('confirmBtn').click(); });
 
 // ─── حالة البنك الوهمي ───
+function listItems(target, items, empty) {
+  $(target).replaceChildren(...(items.length ? items : [el('li', 'none', empty)]));
+}
 async function refreshState() {
   if (!S.id) return;
   const res = await fetch('/api/state?session_id=' + S.id);
   if (!res.ok) return;
   const st = await res.json();
-  const cards = $('cards');
-  cards.replaceChildren(...st.cards.map((c) => {
-    const li = el('li', '', `${c.kind} ••••${c.last4} · `);
-    li.appendChild(el('span', c.status === 'frozen' ? 'frozen' : '', c.status === 'frozen' ? 'موقوفة' : 'فعّالة'));
+  listItems('cards', st.cards.map((c) => {
+    const li = el('li');
+    const g = el('div', 'grow', c.kind);
+    li.append(icon('card'), g, el('span', 'num', '•••• ' + c.last4));
+    li.appendChild(c.status === 'frozen' ? el('span', 'pill warn', 'موقوفة مؤقتاً') : el('span', 'pill ok', 'فعّالة'));
     return li;
-  }));
-  const tickets = $('tickets');
-  tickets.replaceChildren(...(st.tickets.length ? st.tickets.map((t) => {
-    const li = el('li', '', t.id + ' ');
-    li.appendChild(el('small', '', t.summary));
+  }), 'لا توجد بطاقات');
+  listItems('tickets', st.tickets.map((t) => {
+    const li = el('li');
+    const g = el('div', 'grow');
+    g.append(el('span', 'tag', t.id), el('small', '', t.summary));
+    li.append(icon('headset'), g, el('span', 'pill warn', `~${t.wait_minutes} د`));
     return li;
-  }) : [el('li', 'empty', 'لا توجد تذاكر')]));
-  const audit = $('audit');
-  audit.replaceChildren(...(st.audit.length ? st.audit.slice().reverse().map((a) => {
-    const li = el('li', '', `${a.time} · ${a.event} `);
-    li.appendChild(el('small', '', a.detail));
+  }), 'لا توجد تذاكر بعد');
+  listItems('audit', st.audit.slice().reverse().map((a) => {
+    const li = el('li');
+    const g = el('div', 'grow', a.event);
+    g.appendChild(el('small', '', a.detail));
+    li.append(el('time', '', a.time), g);
     return li;
-  }) : [el('li', 'empty', 'لا أحداث بعد')]));
+  }), 'لا أحداث بعد');
 }
 
-// ─── البدء وإعادة العرض ───
+// ─── البدء ───
 async function start() {
   const r = await (await fetch('/api/session', { method: 'POST' })).json();
-  S.id = r.session_id; S.otp = r.demo_otp; S.pending = null; S.steps = 0; S.tokens = 0;
-  const mode = $('mode');
-  mode.textContent = r.provider_label;
-  mode.classList.toggle('sim', r.provider === 'scripted');
-  mode.title = r.provider === 'scripted'
-    ? 'محاكاة بدون إنترنت: المسار والأدوات حقيقية، لكن القرار من قواعد ثابتة تفهم أسئلة العرض وما يشبهها فقط.'
-    : 'نموذج حقيقي · التعليمات ' + r.prompt_version;
-  $('chat').replaceChildren();
-  $('trace').replaceChildren(el('li', 'empty-state', 'اكتب سؤالاً أو اختر أحد أسئلة العرض بالأسفل، وشاهد كل خطوة هنا.'));
-  $('stats').textContent = 'كل خطوة يأخذها الوكيل تظهر هنا لحظة حدوثها';
-  bubble('bot', `أهلاً ${r.customer_name}، أنا سند، مساعدك الرقمي. أقدر أساعدك في عملياتك ورصيدك وبطاقاتك ورسوم الخدمات.`);
+  Object.assign(S, { id: r.session_id, otp: r.demo_otp, pending: null, steps: 0, tools: 0, tokens: 0, cached: 0, turns: 0 });
+  $('modelLabel').textContent = r.provider === 'scripted' ? 'وضع المحاكاة' : r.provider_label;
+  $('model').classList.toggle('sim', r.provider === 'scripted');
+  $('model').title = r.provider === 'scripted'
+    ? 'محاكاة بدون إنترنت: المسار والأدوات حقيقية، والقرار من قواعد ثابتة تفهم أسئلة العرض وما يشبهها فقط.'
+    : 'نموذج حقيقي · تعليمات ' + r.prompt_version;
+  $('chat').replaceChildren(el('div', 'day', 'اليوم'));
+  msg('bot', `أهلاً ${r.customer_name}، أنا سند، مساعدك الذكي في بنك الأمل. أقدر أساعدك في عملياتك ورصيدك وبطاقاتك ورسوم الخدمات.`);
+  $('timeline').replaceChildren(el('li', 'empty', 'اكتب سؤالاً في تطبيق العميل أو اختر أحد الأسئلة المقترحة، وستظهر كل خطوة هنا.'));
+  $('kLatency').textContent = '—';
+  $('kLatencySub').textContent = 'بالثواني';
+  kpis();
   refreshState();
 }
 $('reset').addEventListener('click', async () => {
@@ -258,21 +371,11 @@ $('reset').addEventListener('click', async () => {
   start();
 });
 $('form').addEventListener('submit', (e) => { e.preventDefault(); send($('input').value); });
-
-$('moments').replaceChildren(...MOMENTS.map((q, i) => {
-  const b = el('button', 'moment');
+$('chips').replaceChildren(...SUGGESTIONS.map((q) => {
+  const b = el('button', 'chip-q', q);
   b.type = 'button';
-  b.append(el('b', '', String(i + 1)), document.createTextNode(q));
   b.addEventListener('click', () => send(q));
   return b;
 }));
-
-// شعار بكسلي: درع
-(function logo() {
-  const rows = ['....oo....', '..oo..oo..', 'oo......oo', 'o........o', 'o...oo...o', 'o...oo...o', '.o......o.', '..o....o..', '...o..o...', '....oo....'];
-  const c = $('logo'), px = 3, ctx = c.getContext('2d');
-  c.width = c.height = 30;
-  rows.forEach((r, y) => [...r].forEach((k, x) => { if (k !== '.') { ctx.fillStyle = '#ff6b1a'; ctx.fillRect(x * px, y * px, px, px); } }));
-})();
 
 start();

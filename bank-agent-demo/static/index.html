@@ -3,62 +3,128 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>سند · عرض بنك الأمل</title>
+  <title>بنك الأمل · المساعد الذكي سند</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Doto:wght@900&family=Readex+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <header class="top">
+  <!-- أيقونات بخط واحد، تُستخدم بـ <use> -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3z"/></symbol>
+      <symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></symbol>
+      <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></symbol>
+      <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0V8zM12 16v5"/></symbol>
+      <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4 18-7z"/></symbol>
+      <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></symbol>
+      <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><path d="M4 15h3v5H5.5A1.5 1.5 0 0 1 4 18.5V15zM20 15h-3v5h1.5a1.5 1.5 0 0 0 1.5-1.5V15z"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 4L2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 4a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+      <symbol id="i-card" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 21v-5h-5"/></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+      <symbol id="i-dots" viewBox="0 0 24 24"><path d="M12 6h.01M12 12h.01M12 18h.01"/></symbol>
+      <symbol id="i-message" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5z"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></symbol>
+      <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+      <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+      <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+    </defs>
+  </svg>
+
+  <header class="appbar">
     <div class="brand">
-      <canvas id="logo" class="pix" aria-hidden="true"></canvas>
-      <div><b>بنك الأمل</b><span>عرض تجريبي · بيانات وهمية</span></div>
+      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0A5448"/><path d="M8.5 21.5c2.6-6.8 7.6-10.8 14.5-11-2.1 3-3.1 6.8-3.1 11" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="23" cy="21.5" r="1.9" fill="#D9B061"/></svg>
+      <div class="brand-text"><b>بنك الأمل</b><span>منصة المساعد الذكي</span></div>
     </div>
-    <div class="mode" id="mode" title="">…</div>
-    <button class="btn ghost" id="reset" type="button">إعادة العرض</button>
+    <div class="demo-flag"><svg class="ic"><use href="#i-info"/></svg>عرض تجريبي · بيانات وهمية بالكامل</div>
+    <div class="appbar-end">
+      <div class="model" id="model"><span class="dot"></span><span id="modelLabel">…</span></div>
+      <button class="btn btn-secondary" id="reset" type="button"><svg class="ic"><use href="#i-refresh"/></svg>إعادة العرض</button>
+    </div>
   </header>
 
   <main class="stage">
-    <section class="phone" aria-label="تطبيق العميل">
-      <div class="phone-top">
-        <div><b>سند</b><span>المساعد الرقمي</span></div>
-        <span class="live" id="live">متصل</span>
-      </div>
-      <div class="chat" id="chat" aria-live="polite"></div>
-      <div class="moments" id="moments" aria-label="أسئلة العرض"></div>
-      <form class="composer" id="form">
-        <input id="input" type="text" autocomplete="off" placeholder="اكتب سؤالك…" aria-label="رسالتك">
-        <button class="btn" type="submit" id="send">إرسال</button>
-      </form>
+    <!-- تطبيق العميل -->
+    <section class="device-col" aria-label="تطبيق العميل">
+      <div class="device">
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="island"></span><span class="sb-icons"><i></i><i></i><i></i></span></div>
+          <div class="chat-head">
+            <button class="icon-btn" type="button" aria-label="رجوع"><svg class="ic"><use href="#i-back"/></svg></button>
+            <div class="avatar"><svg class="ic"><use href="#i-shield"/></svg></div>
+            <div class="who"><b>سند</b><span id="presence"><i class="online"></i>المساعد الذكي · متصل</span></div>
+            <button class="icon-btn" type="button" aria-label="المزيد"><svg class="ic"><use href="#i-dots"/></svg></button>
+          </div>
+          <div class="chat" id="chat" aria-live="polite"></div>
+          <div class="chips" id="chips" aria-label="أسئلة مقترحة"></div>
+          <form class="composer" id="form">
+            <input id="input" type="text" autocomplete="off" placeholder="اكتب رسالتك…" aria-label="رسالتك">
+            <button class="send" type="submit" id="send" aria-label="إرسال"><svg class="ic"><use href="#i-send"/></svg></button>
+          </form>
 
-      <div class="sheet" id="sheet" hidden>
-        <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
-          <div class="sheet-kick">تأكيد من تطبيق البنك</div>
-          <div class="sheet-title" id="sheetTitle"></div>
-          <p class="sheet-note">هذه الشاشة يعرضها التطبيق نفسه، لا المساعد. لا يتم أي إجراء قبل تأكيدك.</p>
-          <label for="otp">رمز التحقق المرسل لجوالك</label>
-          <input id="otp" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
-          <div class="sheet-hint">رمز التجربة: <b id="otpHint"></b></div>
-          <div class="sheet-err" id="sheetErr" hidden></div>
-          <div class="sheet-actions">
-            <button class="btn" id="confirmBtn" type="button">تأكيد الإيقاف</button>
-            <button class="btn ghost" id="cancelBtn" type="button">إلغاء</button>
+          <!-- شاشة التأكيد: يعرضها التطبيق، لا المساعد -->
+          <div class="sheet-wrap" id="sheet" hidden>
+            <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+              <span class="grabber"></span>
+              <div class="sheet-kicker"><svg class="ic"><use href="#i-lock"/></svg>تأكيد إجراء على حسابك</div>
+              <h3 id="sheetTitle">إيقاف البطاقة مؤقتاً</h3>
+              <div class="bankcard">
+                <div class="bc-top"><span>بنك الأمل</span><span class="chip"></span></div>
+                <div class="bc-num" id="bcNum">•••• •••• •••• 0000</div>
+                <div class="bc-bottom"><span id="bcKind">بطاقة</span><span class="bc-reason" id="bcReason"></span></div>
+              </div>
+              <p class="sheet-note">هذه الشاشة من تطبيق البنك، وليست من المساعد. لن يتم أي إجراء قبل إدخال رمز التحقق.</p>
+              <label class="otp-label" for="otp0">رمز التحقق المرسل إلى جوالك</label>
+              <div class="otp" id="otp" dir="ltr">
+                <input id="otp0" inputmode="numeric" maxlength="1" aria-label="الخانة 1"><input inputmode="numeric" maxlength="1" aria-label="الخانة 2"><input inputmode="numeric" maxlength="1" aria-label="الخانة 3"><input inputmode="numeric" maxlength="1" aria-label="الخانة 4"><input inputmode="numeric" maxlength="1" aria-label="الخانة 5"><input inputmode="numeric" maxlength="1" aria-label="الخانة 6">
+              </div>
+              <div class="otp-hint">رمز التجربة: <b id="otpHint"></b></div>
+              <div class="sheet-err" id="sheetErr" hidden></div>
+              <button class="btn btn-primary btn-block" id="confirmBtn" type="button">تأكيد الإيقاف</button>
+              <button class="btn btn-text btn-block" id="cancelBtn" type="button">إلغاء</button>
+            </div>
           </div>
         </div>
       </div>
+      <p class="device-caption">تطبيق العميل كما يراه على جواله</p>
     </section>
 
-    <section class="panel" aria-label="خلف الكواليس">
-      <div class="panel-head">
-        <h2>خلف <span class="doto">SCENES</span></h2>
-        <span class="stats" id="stats">كل خطوة يأخذها الوكيل تظهر هنا لحظة حدوثها</span>
+    <!-- لوحة المراقبة -->
+    <section class="console" aria-label="لوحة مراقبة الوكيل">
+      <div class="console-head">
+        <div>
+          <h1><svg class="ic"><use href="#i-activity"/></svg>لوحة مراقبة الوكيل</h1>
+          <p>كل خطوة يتخذها المساعد تظهر هنا لحظة حدوثها، كما يراها فريق البنك.</p>
+        </div>
+        <ul class="guarantees">
+          <li><svg class="ic"><use href="#i-user"/></svg>الهوية من الجلسة</li>
+          <li><svg class="ic"><use href="#i-lock"/></svg>لا تنفيذ دون تأكيد</li>
+          <li><svg class="ic"><use href="#i-shield"/></svg>إخفاء البيانات الحساسة</li>
+          <li><svg class="ic"><use href="#i-file"/></svg>سجل تدقيق كامل</li>
+        </ul>
       </div>
-      <ol class="trace" id="trace"></ol>
-      <div class="boxes">
-        <div class="box"><h3>بطاقات العميل</h3><ul id="cards"></ul></div>
-        <div class="box"><h3>تذاكر الموظفين</h3><ul id="tickets"><li class="empty">لا توجد تذاكر</li></ul></div>
-        <div class="box"><h3>سجل التدقيق</h3><ol id="audit"><li class="empty">لا أحداث بعد</li></ol></div>
+
+      <div class="kpis">
+        <div class="kpi"><span class="k-label"><svg class="ic"><use href="#i-clock"/></svg>زمن آخر رد</span><span class="k-value" id="kLatency">—</span><span class="k-sub" id="kLatencySub">بالثواني</span></div>
+        <div class="kpi"><span class="k-label"><svg class="ic"><use href="#i-cpu"/></svg>قرارات النموذج</span><span class="k-value" id="kSteps">0</span><span class="k-sub">في هذه الجلسة</span></div>
+        <div class="kpi"><span class="k-label"><svg class="ic"><use href="#i-plug"/></svg>استدعاءات الأدوات</span><span class="k-value" id="kTools">0</span><span class="k-sub" id="kToolsSub">على أنظمة البنك</span></div>
+        <div class="kpi"><span class="k-label"><svg class="ic"><use href="#i-layers"/></svg>الرموز المستخدمة</span><span class="k-value" id="kTokens">0</span><span class="k-sub" id="kTokensSub">منها 0 من الذاكرة المؤقتة</span></div>
+      </div>
+
+      <div class="panel timeline-panel">
+        <div class="panel-title"><span>مسار التنفيذ</span><span class="muted" id="turnCount"></span></div>
+        <ol class="timeline" id="timeline"></ol>
+      </div>
+
+      <div class="cards3">
+        <div class="panel"><div class="panel-title"><span>بطاقات العميل</span></div><ul class="list" id="cards"></ul></div>
+        <div class="panel"><div class="panel-title"><span>تذاكر الموظفين</span></div><ul class="list" id="tickets"></ul></div>
+        <div class="panel"><div class="panel-title"><span>سجل التدقيق</span></div><ul class="list audit" id="audit"></ul></div>
       </div>
     </section>
   </main>
